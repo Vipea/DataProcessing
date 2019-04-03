@@ -16,5 +16,48 @@ END_YEAR = 2018
 # Global dictionary for the data
 data_dict = {str(key): [] for key in range(START_YEAR, END_YEAR)}
 
+all_ratings = []
+with open('movies.csv', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
+    for movie in reader:
+        #print(data_dict[movie['Rating']])
+        data_dict[movie['Year']].append(float(movie['Rating']))
+        all_ratings.append(float(movie['Rating']))
+csvfile.close()
+
+print(list(data_dict.keys()))
+print(list(data_dict.values()))
+
+years = list(data_dict.keys())
+ratings = list(data_dict.values())
+print(len(years))
+print(len(ratings))
+moreyears=[]
+all_averages = []
+for c, rating in enumerate(ratings, 0):
+    moreyears.append([years[c]] * len(rating))
+    all_averages.append(sum(rating) / len(rating))
+print(all_averages)
+
+average = sum(all_ratings) / len(all_ratings)
+
+
+plt.figure(1)
+plt.scatter(years, all_averages, label = "Average rating per year")
+plt.axhline(y=average, color='r', linestyle='-', label = "Average rating over all years")
+
+plt.xlabel('Year')
+plt.ylabel('Rating')
+plt.title('Average of IMDB movie ratings')
+plt.ylim(8,9)
+plt.legend()
+
+plt.show()
+
+
+
+print("{:.2f}".format(sum(all_ratings) / len(all_ratings)))
+
+
 if __name__ == "__main__":
     print(data_dict)

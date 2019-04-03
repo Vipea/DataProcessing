@@ -52,8 +52,7 @@ def extract_movies(dom):
         this_year = years.find(class_="lister-item-year text-muted unbold")
         try:
             year = this_year.text
-            year = year.strip('(')
-            year = year.strip(')')
+            year = re.sub(r"\D", "", year)
         except AttributeError:
             break
         all_years.append(year)
@@ -137,10 +136,6 @@ def extract_movies(dom):
 
     print(len(movies))
 
-    for movie in movies:
-        # write to csv
-
-        import csv
 
 
 
