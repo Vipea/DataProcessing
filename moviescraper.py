@@ -93,22 +93,49 @@ def extract_movies(dom):
     print(len(all_runtimes))
     print(len(all_stars))
 
+
+
+
+
+    all_movies = dom.find_all('div', {"class": "lister-item-content"})
+    print(len(all_movies))
+
+    actors = []
+    all_stars = []
+    counter = 0
+    for movie in all_movies:
+        star = movie.find(text=re.compile('Stars'))
+        if star == None:
+            print("no stars")
+            all_stars.append("[]")
+            counter += 1
+        else:
+            counter += 1
+            nextstar = star.next_sibling
+            while True:
+                try:
+                    tag = nextstar.name
+                except AttributeError:
+                    tag = ""
+                if (tag == 'a'):
+                    actors.append(nextstar.text)
+                    nextstar = nextstar.next_sibling.next_sibling
+                else:
+                    break
+            all_stars.append(actors)
+            actors = []
+
+
+    print(len(all_stars))
+    print(counter)
+    print(all_stars)
+
     for title, year, rating, runtime, stars in zip(all_titles, all_years, all_ratings, all_runtimes, all_stars):
         movies.append({'title':title, 'year':year, 'rating':rating, 'runtime':runtime, 'stars':stars})
 
-    print(movies)
     print(len(movies))
 
-    ja = dom.find_all(class_="")
-    print(len(ja))
-    for entries in ja:
-        startest = entries.find(text=re.compile('Stars')) # stars
-        print(startest)
-
-
-
-
-
+    
 
     # ADD YOUR CODE HERE TO EXTRACT THE ABOVE INFORMATION ABOUT THE
     # HIGHEST RATED MOVIES
