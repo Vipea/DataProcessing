@@ -52,6 +52,8 @@ def extract_movies(dom):
         this_year = years.find(class_="lister-item-year text-muted unbold")
         try:
             year = this_year.text
+            year = year.strip('(')
+            year = year.strip(')')
         except AttributeError:
             break
         all_years.append(year)
@@ -107,7 +109,7 @@ def extract_movies(dom):
         star = movie.find(text=re.compile('Stars'))
         if star == None:
             print("no stars")
-            all_stars.append("[]")
+            all_stars.append("")
             counter += 1
         else:
             counter += 1
@@ -131,18 +133,26 @@ def extract_movies(dom):
     print(all_stars)
 
     for title, year, rating, runtime, stars in zip(all_titles, all_years, all_ratings, all_runtimes, all_stars):
-        movies.append({'title':title, 'year':year, 'rating':rating, 'runtime':runtime, 'stars':stars})
+        movies.append({'title':title, 'rating':rating, 'year':year, 'stars':stars, 'runtime':runtime,})
 
     print(len(movies))
 
-    
+    for movie in movies:
+        # write to csv
+
+        import csv
+
+
+
+
+
 
     # ADD YOUR CODE HERE TO EXTRACT THE ABOVE INFORMATION ABOUT THE
     # HIGHEST RATED MOVIES
     # NOTE: FOR THIS EXERCISE YOU ARE ALLOWED (BUT NOT REQUIRED) TO IGNORE
     # UNICODE CHARACTERS AND SIMPLY LEAVE THEM OUT OF THE OUTPUT.
 
-    return []   # REPLACE THIS LINE AS WELL IF APPROPRIATE
+    return movies   # REPLACE THIS LINE AS WELL IF APPROPRIATE
 
 
 def save_csv(outfile, movies):
@@ -151,6 +161,11 @@ def save_csv(outfile, movies):
     """
     writer = csv.writer(outfile)
     writer.writerow(['Title', 'Rating', 'Year', 'Actors', 'Runtime'])
+    for movie in movies:
+        print("write")
+        row = [movie['title'], movie['rating'], movie['year'], movie['stars'], movie['runtime']]
+        print(row)
+        writer.writerow(row)
 
     # ADD SOME CODE OF YOURSELF HERE TO WRITE THE MOVIES TO DISK
 
