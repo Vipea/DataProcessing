@@ -40,22 +40,23 @@ average = sum(all_ratings) / len(all_ratings)
 # Style the plots in a more visually appealing way
 plt.style.use('Solarize_Light2')
 
-# Sets size of visualization window to be large enough to fit both plots elegantly
+# Sets size of visualization window to be large enough to fit plots elegantly
 plt.rcParams["figure.figsize"] = [14, 6]
 
 # Visualizes average movie score per year using a line
 plt.subplot(1, 2, 1)
-plt.plot(years, all_averages, label = "Average rating per year")
+plt.plot(years, all_averages, label="Average rating per year")
 plt.xlabel('Year')
 plt.ylabel('Rating')
 plt.title('Average of IMDB movie ratings')
 plt.ylim(1, 10)
 plt.legend()
 
-# Visualizes average per year using dots, and the average over all years using a line
+# Visualizes average per year using dots and total average using a line
 plt.subplot(1, 2, 2)
-plt.scatter(years, all_averages, label = "Average rating per year")
-plt.axhline(y=average, color='r', linestyle='-', label = "Average rating over all years")
+plt.scatter(years, all_averages, label="Average rating per year")
+plt.axhline(y=average, color='r', linestyle='-',
+            label="Average rating over all years")
 plt.xlabel('Year')
 plt.ylabel('Rating')
 plt.title('Average of IMDB movie ratings')

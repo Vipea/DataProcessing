@@ -12,21 +12,20 @@ from requests.exceptions import RequestException
 from contextlib import closing
 from bs4 import BeautifulSoup
 
-TARGET_URL = "https://www.imdb.com/search/title?title_type=feature&release_date=2008-01-01,2018-01-01&num_votes=5000,&sort=user_rating,desc"
+TARGET_URL = ("https://www.imdb.com/search/title?title_type=feature&release_da"
+              "te=2008-01-01,2018-01-01&num_votes=5000,&sort=user_rating,desc")
 BACKUP_HTML = 'movies.html'
 OUTPUT_CSV = 'movies.csv'
 
 
 def extract_movies(dom):
-    """
-    Extract a list of highest rated movies from DOM (of IMDB page).
+    """ Extract a list of highest rated movies from DOM (of IMDB page).
     Each movie entry contains the following fields:
     - Title
     - Rating
     - Year of release
     - Actors/actresses
-    - Runtime
-    """
+    - Runtime """
 
     # Initialize empty list to store all movie data in
     movies = []
@@ -42,8 +41,8 @@ def extract_movies(dom):
         try:
             this_title = title.a.text
         except AttributeError:
-            print("You are trying to extract the title, but no attribute \
-                  'a.text' was found")
+            print("You are trying to extract the title, but no attribute " +
+                  "'a.text' was found")
             break
 
         # Find production years of movie
@@ -53,8 +52,8 @@ def extract_movies(dom):
             this_year = this_year.text
             this_year = int(re.sub(r"\D", "", this_year))
         except AttributeError:
-            print("You are trying to extract the production year, but no \
-                  attribute 'text' was found")
+            print("You are trying to extract the production year, but no " +
+                  "attribute 'text' was found")
             break
 
         # Find rating
@@ -67,30 +66,26 @@ def extract_movies(dom):
             this_runtime = runtime.text
 
             # Remove non-numeric characters and cast to integer
-            this_runtime = int(re.sub('[^0-9]','', this_runtime))
+            this_runtime = int(re.sub('[^0-9]', '', this_runtime))
         except AttributeError:
-            print("You are trying to exract the runtime, but no attribute \
-                  'text' was found")
+            print("You are trying to exract the runtime, but no attribute "
+                  "'text' was found")
             break
 
         # Find stars
-        stars = ""
+        stars = "''"
         star = movie.find(text=re.compile('Stars'))
 
-        # Append an empty string if the movie has no stars listed
-        if star == None:
-            print("no stars")
-
-        # Otherwise, loop over the stars in the movie and add them
-        else:
+        # loop over the stars in the movie and add them
+        if star is not None:
             nextstar = star.next_sibling
             while True:
                 try:
                     tag = nextstar.name
                 except AttributeError:
                     stars = stars[:-2]
-                    print("No more stars could be found, attribute 'name' \
-                          was not found")
+                    print("No more stars could be found, attribute 'name' " +
+                          "was not found")
                     break
                 if (tag == 'a'):
                     stars += f"{nextstar.text}, "
@@ -98,8 +93,9 @@ def extract_movies(dom):
                 else:
                     break
 
-        movies.append({'title':this_title, 'rating':this_rating,
-                       'year':this_year, 'stars':stars, 'runtime':this_runtime})
+        movies.append({'title': this_title, 'rating': this_rating,
+                       'year': this_year, 'stars': stars,
+                       'runtime': this_runtime})
 
     return movies
 
@@ -131,8 +127,8 @@ def simple_get(url):
             else:
                 return None
     except RequestException as e:
-        print('The following error occurred during HTTP GET request to\
-               {0} : {1}'.format(url, str(e)))
+        print("The following error occurred during HTTP GET request to " +
+              "{0} : {1}".format(url, str(e)))
         return None
 
 
