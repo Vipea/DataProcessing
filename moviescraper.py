@@ -20,120 +20,88 @@ OUTPUT_CSV = 'movies.csv'
 def extract_movies(dom):
     """
     Extract a list of highest rated movies from DOM (of IMDB page).
-    Each movie entry should contain the following fields:
+    Each movie entry contains the following fields:
     - Title
     - Rating
-    - Year of release (only a number!)
-    - Actors/actresses (comma separated if more than one)
-    - Runtime (only a number!)
+    - Year of release
+    - Actors/actresses
+    - Runtime
     """
 
+    # Initialize empty list to store all movie data in
     movies = []
 
-    all_titles = []
-    all_years = []
-    all_ratings = []
-    all_runtimes = []
-    all_stars = []
+    # Find all movies in the webpage
+    all_movies = dom.find_all('div', {"class": "lister-item-content"})
 
-    # Finds movie titles
-    titles = dom.find_all('h3')
-    for title in titles:
+    # Loop over all movies and extract relevant data using BeautifulSoup
+    for movie in all_movies:
+
+        # Find movie title
+        title = movie.find('h3')
         try:
             this_title = title.a.text
         except AttributeError:
+            print("You are trying to extract the title, but no attribute \
+                  'a.text' was found")
             break
-        all_titles.append(title.a.text)
 
-    # Finds production years of movies
-    hthree = dom.find_all('h3')
-    for years in hthree:
-        this_year = years.find(class_="lister-item-year text-muted unbold")
+        # Find production years of movie
+        this_year = movie.find('span',
+                               class_="lister-item-year text-muted unbold")
         try:
-            year = this_year.text
-            year = re.sub(r"\D", "", year)
+            this_year = this_year.text
+            this_year = int(re.sub(r"\D", "", this_year))
         except AttributeError:
+            print("You are trying to extract the production year, but no \
+                  attribute 'text' was found")
             break
-        all_years.append(year)
 
-    # Finds ratings
-    ratings = dom.find_all(class_="inline-block ratings-imdb-rating")
-    for rating in ratings:
-        print(rating['data-value']) # !!!
-        all_ratings.append(rating['data-value'])
+        # Find rating
+        this_rating = float(movie.find(
+                      class_="inline-block ratings-imdb-rating")['data-value'])
 
-    # Finds runtimes
-    runtimes = dom.find_all(class_="runtime")
-    for runtime in runtimes:
-        print(runtime.text)
-        all_runtimes.append(runtime.text)
+        # Find runtime
+        runtime = movie.find(class_="runtime")
+        try:
+            this_runtime = runtime.text
 
-    stars = dom.find_all(text=re.compile('Stars')) # stars
+            # Remove non-numeric characters and cast to integer
+            this_runtime = int(re.sub('[^0-9]','', this_runtime))
+        except AttributeError:
+            print("You are trying to exract the runtime, but no attribute \
+                  'text' was found")
+            break
 
-    actors = []
-    for star in stars:
-        nextstar = star.next_sibling
-        while True:
-            try:
-                tag = nextstar.name
-            except AttributeError:
-                tag = ""
-            if (tag == 'a'):
-                actors.append(nextstar.text)
-                nextstar = nextstar.next_sibling.next_sibling
-            else:
-                break
-        all_stars.append(actors)
-        actors = []
-
-
-    print(len(all_titles))
-    print(len(all_years))
-    print(len(all_ratings))
-    print(len(all_runtimes))
-    print(len(all_stars))
-
-    all_movies = dom.find_all('div', {"class": "lister-item-content"})
-    print(len(all_movies))
-
-    actors = []
-    all_stars = []
-    counter = 0
-    for movie in all_movies:
+        # Find stars
+        stars = ""
         star = movie.find(text=re.compile('Stars'))
+
+        # Append an empty string if the movie has no stars listed
         if star == None:
             print("no stars")
-            all_stars.append("")
-            counter += 1
+
+        # Otherwise, loop over the stars in the movie and add them
         else:
-            counter += 1
             nextstar = star.next_sibling
             while True:
                 try:
                     tag = nextstar.name
                 except AttributeError:
-                    tag = ""
+                    stars = stars[:-2]
+                    print("No more stars could be found, attribute 'name' \
+                          was not found")
+                    break
                 if (tag == 'a'):
-                    actors.append(nextstar.text)
+                    stars += f"{nextstar.text}, "
                     nextstar = nextstar.next_sibling.next_sibling
                 else:
                     break
-            all_stars.append(actors)
-            actors = []
 
+        movies.append({'title':this_title, 'rating':this_rating,
+                       'year':this_year, 'stars':stars, 'runtime':this_runtime})
 
-    print(len(all_stars)) # !!!
-    print(counter) # !!!
-    print(all_stars) # !!!
-
-    for title, year, rating, runtime, stars in zip(all_titles, all_years, all_ratings, all_runtimes, all_stars):
-        movies.append({'title':title, 'rating':rating, 'year':year, 'stars':stars, 'runtime':runtime,})
-
-    print(len(movies)) # !!!
-
-    # ??? wat met de unicode characters?
-
-    return movies   # REPLACE THIS LINE AS WELL IF APPROPRIATE
+    return movies
 
 
 def save_csv(outfile, movies):
@@ -163,7 +131,8 @@ def simple_get(url):
             else:
                 return None
     except RequestException as e:
-        print('The following error occurred during HTTP GET request to {0} : {1}'.format(url, str(e)))
+        print('The following error occurred during HTTP GET request to\
+               {0} : {1}'.format(url, str(e)))
         return None
 
 
@@ -196,6 +165,3 @@ if __name__ == "__main__":
     # write the CSV file to disk (including a header)
     with open(OUTPUT_CSV, 'w', newline='') as output_file:
         save_csv(output_file, movies)
-
-# min weg !!!
-# stars in een string niet in een lijst

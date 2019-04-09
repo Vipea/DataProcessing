@@ -16,7 +16,11 @@ END_YEAR = 2018
 # Global dictionary for the data
 data_dict = {str(key): [] for key in range(START_YEAR, END_YEAR)}
 
+# Initalize empty lists to store all ratings and averages in
 all_ratings = []
+all_averages = []
+
+# Read ratings from csv and append to list
 with open('movies.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile)
     for movie in reader:
@@ -24,37 +28,40 @@ with open('movies.csv', newline='') as csvfile:
         all_ratings.append(float(movie['Rating']))
 csvfile.close()
 
+# Stores the years and corresponding ratings in lists
 years = list(data_dict.keys())
 ratings = list(data_dict.values())
 
-moreyears=[]
-all_averages = []
-
-for c, rating in enumerate(ratings, 0):
-    moreyears.append([years[c]] * len(rating))
+# Finds the average rating
+for rating in ratings:
     all_averages.append(sum(rating) / len(rating))
-
-print(all_averages)
-
 average = sum(all_ratings) / len(all_ratings)
 
+# Style the plots in a more visually appealing way
+plt.style.use('Solarize_Light2')
 
-plt.figure(1)
-plt.scatter(years, all_averages, label = "Average rating per year")
-plt.axhline(y=average, color='r', linestyle='-', label = "Average rating over all years")
+# Sets size of visualization window to be large enough to fit both plots elegantly
+plt.rcParams["figure.figsize"] = [14, 6]
 
+# Visualizes average movie score per year using a line
+plt.subplot(1, 2, 1)
+plt.plot(years, all_averages, label = "Average rating per year")
 plt.xlabel('Year')
 plt.ylabel('Rating')
 plt.title('Average of IMDB movie ratings')
-plt.ylim(8,9)
+plt.ylim(1, 10)
 plt.legend()
 
+# Visualizes average per year using dots, and the average over all years using a line
+plt.subplot(1, 2, 2)
+plt.scatter(years, all_averages, label = "Average rating per year")
+plt.axhline(y=average, color='r', linestyle='-', label = "Average rating over all years")
+plt.xlabel('Year')
+plt.ylabel('Rating')
+plt.title('Average of IMDB movie ratings')
+plt.ylim(8, 9)
+plt.legend()
 plt.show()
-
-
-
-print("{:.2f}".format(sum(all_ratings) / len(all_ratings)))
-
 
 if __name__ == "__main__":
     print(data_dict)
