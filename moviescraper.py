@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-# Name:
-# Student number:
+# Name: Max Frings
+# Student number: 10544429
 """
 This script scrapes IMDB and outputs a CSV file with highest rated movies.
 """
@@ -36,18 +36,17 @@ def extract_movies(dom):
     all_runtimes = []
     all_stars = []
 
+    # Finds movie titles
     titles = dom.find_all('h3')
     for title in titles:
         try:
             this_title = title.a.text
         except AttributeError:
             break
-        print(title.a.text)
         all_titles.append(title.a.text)
 
-    all_years = []
+    # Finds production years of movies
     hthree = dom.find_all('h3')
-
     for years in hthree:
         this_year = years.find(class_="lister-item-year text-muted unbold")
         try:
@@ -57,11 +56,13 @@ def extract_movies(dom):
             break
         all_years.append(year)
 
+    # Finds ratings
     ratings = dom.find_all(class_="inline-block ratings-imdb-rating")
     for rating in ratings:
-        print(rating['data-value'])
+        print(rating['data-value']) # !!!
         all_ratings.append(rating['data-value'])
 
+    # Finds runtimes
     runtimes = dom.find_all(class_="runtime")
     for runtime in runtimes:
         print(runtime.text)
@@ -86,17 +87,11 @@ def extract_movies(dom):
         actors = []
 
 
-
-
     print(len(all_titles))
     print(len(all_years))
     print(len(all_ratings))
     print(len(all_runtimes))
     print(len(all_stars))
-
-
-
-
 
     all_movies = dom.find_all('div', {"class": "lister-item-content"})
     print(len(all_movies))
@@ -127,25 +122,16 @@ def extract_movies(dom):
             actors = []
 
 
-    print(len(all_stars))
-    print(counter)
-    print(all_stars)
+    print(len(all_stars)) # !!!
+    print(counter) # !!!
+    print(all_stars) # !!!
 
     for title, year, rating, runtime, stars in zip(all_titles, all_years, all_ratings, all_runtimes, all_stars):
         movies.append({'title':title, 'rating':rating, 'year':year, 'stars':stars, 'runtime':runtime,})
 
-    print(len(movies))
+    print(len(movies)) # !!!
 
-
-
-
-
-
-
-    # ADD YOUR CODE HERE TO EXTRACT THE ABOVE INFORMATION ABOUT THE
-    # HIGHEST RATED MOVIES
-    # NOTE: FOR THIS EXERCISE YOU ARE ALLOWED (BUT NOT REQUIRED) TO IGNORE
-    # UNICODE CHARACTERS AND SIMPLY LEAVE THEM OUT OF THE OUTPUT.
+    # ??? wat met de unicode characters?
 
     return movies   # REPLACE THIS LINE AS WELL IF APPROPRIATE
 
@@ -158,11 +144,10 @@ def save_csv(outfile, movies):
     writer.writerow(['Title', 'Rating', 'Year', 'Actors', 'Runtime'])
     for movie in movies:
         print("write")
-        row = [movie['title'], movie['rating'], movie['year'], movie['stars'], movie['runtime']]
+        row = [movie['title'], movie['rating'], movie['year'], movie['stars'],
+               movie['runtime']]
         print(row)
         writer.writerow(row)
-
-    # ADD SOME CODE OF YOURSELF HERE TO WRITE THE MOVIES TO DISK
 
 
 def simple_get(url):
@@ -211,3 +196,6 @@ if __name__ == "__main__":
     # write the CSV file to disk (including a header)
     with open(OUTPUT_CSV, 'w', newline='') as output_file:
         save_csv(output_file, movies)
+
+# min weg !!!
+# stars in een string niet in een lijst
