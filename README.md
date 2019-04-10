@@ -1,2 +1,5 @@
 # DataProcessing
-Submissions for the course Data Processing at the University of Amsterdam
+
+First: run moviescraper.py
+# Movies will be scraped fro
+Second: run visualizer.py
