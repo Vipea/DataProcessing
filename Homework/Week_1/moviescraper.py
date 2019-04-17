@@ -45,7 +45,7 @@ def extract_movies(dom):
                   "'a.text' was found")
             break
 
-        # Find production years of movie
+        # Find production year of movie
         this_year = movie.find('span',
                                class_="lister-item-year text-muted unbold")
         try:
