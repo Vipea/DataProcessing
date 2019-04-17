@@ -64,7 +64,7 @@ def visualize_distribution(data):
 
     # Create a histogram of GDP data
     data.hist(bins=40, rwidth=0.9)
-    plt.title('Distribution of GDP per capita in USD')
+    plt.title('Histogram of GDP per capita in USD')
     plt.xlabel('GDP in USD', weight='bold')
     plt.ylabel('Frequency', weight='bold')
     plt.show()
@@ -108,9 +108,15 @@ def visualize_boxplot(data):
                                                  errors='coerce')
 
     # Show a boxplot of the data
-    data.boxplot(column='Infant mortality (per 1000 births)')
-    plt.ylabel('Infant deaths', weight='bold')
+    data.boxplot(column='Infant mortality (per 1000 births)', notch=True)
+    plt.yticks(np.arange(0, 200.1, 10))
+    plt.ylabel('Infant mortality (per 1000 births)', weight='bold')
     plt.title('Boxplot of infant mortality')
+
+    # Remove panda's auto-generated subtitle
+    x_axis = plt.axes().axes.get_xaxis()
+    x_axis.set_visible(False)
+
     plt.show()
 
 
