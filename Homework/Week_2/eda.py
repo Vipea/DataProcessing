@@ -84,6 +84,7 @@ def five_number_summary(data):
     five_numsum = data.describe()
     data_min = round(five_numsum['min'], 2)
     data_q1 = round(five_numsum['25%'], 2)
+    data_median = round(five_numsum['50%'], 2)
     data_q3 = round(five_numsum['75%'], 2)
     data_max = round(five_numsum['max'], 2)
 
@@ -91,6 +92,7 @@ def five_number_summary(data):
     print('Five Number Summary for infant mortality (per 1000 births)\n' +
           f'The minimum rate {data_min}\n' +
           f'The first quartile is {data_q1}\n' +
+          f'The median is {data_median}\n' +
           f'The third quartile is {data_q3}\n' +
           f'The maximum rate is {data_max}')
 
