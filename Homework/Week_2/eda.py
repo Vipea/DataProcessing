@@ -60,10 +60,10 @@ def visualize_distribution(data):
     plt.rcParams["figure.figsize"] = [10, 6]
 
     # Create a histogram of GDP data
-    data.plot.hist(bins=40, rwidth=0.9)
+    data.hist(bins=40, rwidth=0.9)
     plt.title('Distribution of GDP per capita in USD')
-    plt.xlabel('GDP in USD')
-    plt.ylabel('Frequency')
+    plt.xlabel('GDP in USD', weight='bold')
+    plt.ylabel('Frequency', weight='bold')
     plt.show()
 
     return
@@ -74,13 +74,15 @@ def five_number_summary(data):
     Calculates the five number summary of a dataset
     '''
     # Converts the infant mortality data to numeric format for calculations
+    data.replace(regex=True, inplace=True, to_replace=r',', value=r'.')
     data = pd.to_numeric(data, errors='coerce')
 
     # Five Number Summary for infant mortality
-    data_min = data.min()
-    data_q1 = data.quantile(0.25)
-    data_q3 = data.quantile(0.75)
-    data_max = data.max()
+    five_numsum = data.describe()
+    data_min = round(five_numsum['min'], 2)
+    data_q1 = round(five_numsum['25%'], 2)
+    data_q3 = round(five_numsum['75%'], 2)
+    data_max = round(five_numsum['max'], 2)
 
     # Print results
     print('Five Number Summary for infant mortality (per 1000 births)\n' +
@@ -95,11 +97,15 @@ def visualize_boxplot(data):
     Shows a boxplot of the data
     '''
     # Converts the infant mortality data to numeric format for calculations
-    data = pd.to_numeric(data, errors='coerce')
+    data['Infant mortality (per 1000 births)'] = pd.to_numeric(
+                                                 data['Infant mortality ' +
+                                                      '(per 1000 births)'],
+                                                 errors='coerce')
 
-    data.plot.box()
-    plt.ylabel('Infant deaths')
-    plt.title('Boxplot of infant mortality worldwide')
+    # Show a boxplot of the data
+    data.boxplot(column='Infant mortality (per 1000 births)')
+    plt.ylabel('Infant deaths', weight='bold')
+    plt.title('Boxplot of infant mortality')
     plt.show()
 
 
@@ -117,5 +123,5 @@ if __name__ == '__main__':
     GDP_data = mean_median_mode_std(country_data['GDP ($ per capita) dollars'])
     visualize_distribution(GDP_data)
     five_number_summary(country_data['Infant mortality (per 1000 births)'])
-    visualize_boxplot(country_data['Infant mortality (per 1000 births)'])
+    visualize_boxplot(country_data)
     write_to_json(country_data)
