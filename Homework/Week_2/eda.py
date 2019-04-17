@@ -17,6 +17,9 @@ def import_data():
     # Replace 'unknown' with NaN, this is convention and allows for operations
     country_data.replace('unknown', np.nan)
 
+    # Set index of dataset to 'Country'
+    country_data.set_index('Country', inplace=True)
+
     return country_data
 
 
@@ -29,14 +32,14 @@ def mean_median_mode_std(data):
     data = data.str.replace(r"[a-zA-Z]", '')
     data = pd.to_numeric(data, errors='coerce')
 
+    # Remove outliers that are more than 3 standard deviations away
+    data = data.mask((data - data.mean()) > 3 * data.std())
+
     # Calculate mean, median, mode and standard deviation
     data_mean = round(data.mean(), 2)
     data_median = int(data.median())
     data_mode = int(data.mode()[0])
     data_std = round(data.std(), 2)
-
-    # Remove outliers that are more than 3 standard deviations away
-    data = data.mask((data - data_mean) > 3 * data_std)
 
     # Print results
     print('\n' +
@@ -114,7 +117,6 @@ def write_to_json(data):
     Converts a pandas DataFrame to a JSON object and writes it to a new file
     '''
     # Write data to a JSON file with Country as the index
-    data.set_index('Country', inplace=True)
     data.to_json(r'country_data.json', orient='index')
 
 
