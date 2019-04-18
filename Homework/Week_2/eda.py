@@ -1,3 +1,9 @@
+# Name: Max Frings
+# Student number: 10544429
+"""
+This script reads data from a csv file and performs and visualizes different calculations such as the mean and the five number summary.
+"""
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
