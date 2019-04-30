@@ -32,10 +32,10 @@ txtFile.onreadystatechange = function() {
 
 
         // y ticks
-        // for (i = 0; i+= 50; i < domain_y[1]) {
-        //   ctx.moveTo(0, i)
-        //   ctx.lineTo(10, i)
-        // }
+        for (i = 0; i+= 50; i < domain_y[1]) {
+          ctx.moveTo(trans_x(domain_x[0]), trans_y(i))
+          ctx.lineTo(trans_x(domain_x[0])-10, trans_y(i))
+        }
 
         ctx.lineWidth = 0.5;
         // startpoint
