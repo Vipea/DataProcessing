@@ -23,6 +23,20 @@ txtFile.onreadystatechange = function() {
         ctx.lineTo(trans_x(domain_x[1]), trans_y(domain_y[1]))
         ctx.moveTo(trans_x(domain_x[0]), trans_y(domain_y[1]))
         ctx.lineTo(trans_x(domain_x[0]), trans_y(0))
+
+        // x ticks
+        for (i = range_x[1]; i-= 100; i>= 100) {
+          ctx.moveTo(i, trans_y(domain_y[1]))
+          ctx.lineTo(i, trans_y(domain_y[1]+10))
+        } // gebruik de createTransform hier, ticks gaan nu per ?? dagen en je wilt ze eigenlijk per 50 bijv?
+
+
+        // y ticks
+        // for (i = 0; i+= 50; i < domain_y[1]) {
+        //   ctx.moveTo(0, i)
+        //   ctx.lineTo(10, i)
+        // }
+
         ctx.lineWidth = 0.5;
         // startpoint
         ctx.moveTo(trans_x(i), trans_y(jsonData[20180101].FXX))
@@ -36,13 +50,19 @@ txtFile.onreadystatechange = function() {
         });
 
         // set title, move to middle x location and upper y
-        ctx.moveTo(trans_x(domain_x[1]), trans_y(0))
         ctx.font = "30px Helvetica";
-        ctx.textAlign = "left";
-        ctx.fillText("Windstoot snelheid in m/s-1", 10, 50);
+        ctx.textAlign = "center";
+        ctx.fillText("Windstoot snelheid in m/s-1", range_x[1]/2, 50);
+
+
+        // x axis note, move to below the x axis line
+        ctx.font = "15px Helvetica";
+        ctx.fillText("Dag", range_x[1]/2, range_y[1]+20);
+
+        // y axis note, move to left of y axis line
+        ctx.fillText("Windstoot", 50, range_y[1]/2);
+
         ctx.stroke();
-
-
     };
 };
 
