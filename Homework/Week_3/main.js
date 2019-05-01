@@ -8,10 +8,10 @@ txtFile.onreadystatechange = function() {
         var dates = {};
         var i = 1;
         domain_x = [1, 365]; // !!! automate this
-        range_x = [100, 900]; // !!! what kind of y data?
+        range_x = [120, 900]; // !!! what kind of y data?
         trans_x = createTransform(domain_x, range_x)
 
-        domain_y = [0, 300]; // !!! automate this
+        domain_y = [0, 340]; // !!! automate this
         range_y = [100, 450]
         trans_y = createTransform(domain_y, range_y)
 
@@ -25,22 +25,38 @@ txtFile.onreadystatechange = function() {
         ctx.lineTo(trans_x(domain_x[0]), trans_y(0))
 
         // x ticks
-        for (i = range_x[1]; i-= 100; i>= 100) {
-          ctx.moveTo(i, trans_y(domain_y[1]))
-          ctx.lineTo(i, trans_y(domain_y[1]+10))
+        var days_of_months_cumulative = [["Jan", 31], ["Feb", 59], ["Mar", 90],
+                                         ["Apr", 120], ["May", 151],
+                                         ["Jun", 181], ["Jul", 212],
+                                         ["Aug", 243], ["Sep", 273],
+                                         ["Oct", 304], ["Nov", 334],
+                                         ["Dec", 365]];
+        var amount_of_months = 12;
+        for (i = 0; i < amount_of_months; i++) {
+          ctx.moveTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]))
+          ctx.lineTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]+10))
+          ctx.textAlign = "center";
+          ctx.font = "12px Helvetica";
+          ctx.fillText(days_of_months_cumulative[i][0], trans_x(days_of_months_cumulative[i][1]) - 31, trans_y(domain_y[1]+12));
         } // gebruik de createTransform hier, ticks gaan nu per ?? dagen en je wilt ze eigenlijk per 50 bijv?
 
 
         // y ticks
-        for (i = 0; i+= 50; i < domain_y[1]) {
+        console.log(domain_y[1])
+        for (i = 0; i < domain_y[1]; i+= 50) {
+          console.log(i)
           ctx.moveTo(trans_x(domain_x[0]), trans_y(i))
           ctx.lineTo(trans_x(domain_x[0])-10, trans_y(i))
+          ctx.textAlign = "left";
+          ctx.font = "11px Helvetica";
+          ctx.fillText(340 - i, domain_x[0]+80, trans_y(i));
         }
 
+        var i = 1;
         ctx.lineWidth = 0.5;
         // startpoint
         ctx.moveTo(trans_x(i), trans_y(jsonData[20180101].FXX))
-        i++
+        i++;
 
         // loop over all datapoint and draw lines in between
         Object.keys(jsonData).forEach(function(element) {
@@ -49,18 +65,19 @@ txtFile.onreadystatechange = function() {
           i++
         });
 
+
         // set title, move to middle x location and upper y
         ctx.font = "30px Helvetica";
         ctx.textAlign = "center";
-        ctx.fillText("Windstoot snelheid in m/s-1", range_x[1]/2, 50);
+        ctx.fillText("Strongest wind gust speed per day at De Bilt in m/s (2018)", range_x[1]/2, 50);
 
 
         // x axis note, move to below the x axis line
         ctx.font = "15px Helvetica";
-        ctx.fillText("Dag", range_x[1]/2, range_y[1]+20);
-
+        ctx.fillText("Days", range_x[1]/2, range_y[1]+50);
++
         // y axis note, move to left of y axis line
-        ctx.fillText("Windstoot", 50, range_y[1]/2);
+        ctx.fillText("m/s", 45, range_y[1]/2);
 
         ctx.stroke();
     };
@@ -120,3 +137,5 @@ function createTransform(domain, range){
       return alpha * x + beta;
     }
 }
+
+// titel naam studentnummer linknaardata allemaal op website
