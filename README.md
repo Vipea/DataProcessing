@@ -13,7 +13,6 @@ Usage:
 
   Second: run visualizer.py
 
-
 # Week 2
 This program reads data from a CSV file and converts it to a Pandas DataFrame,
 then calculates the mean, median, mode and standard deviation of GDP per capita
@@ -23,8 +22,8 @@ converts the DataFrame to a JSON file.
 Usage: run eda.py
 
 # Week 3
-convertCSV2JSON.py converts a CSV file to a JSON file
+This program visualizes maximum wind gust in JSON format data using canvas. First the wind gust dataset in CSV format must be converted to a JSON file using convertCSV2JSON.py
 
 Usage: convertCSV2JSON.py
 
-The JSON file can then be used to visualize data
+Then the program reads the data and draws the graph using canvas, as shown when going to the index.html file in this folder.
