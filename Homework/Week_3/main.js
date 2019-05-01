@@ -20,12 +20,13 @@ txtFile.onreadystatechange = function() {
         };
         max_y = Math.max(...windgusts);
 
+        // Initialize dates dictionary
         dates = {};
+
+        // Set x and y domain and sufficient range to display graph properly
         domain_x = [1, Object.values(jsonData).length];
         range_x = [120, 900];
         trans_x = createTransform(domain_x, range_x);
-
-
         domain_y = [0, max_y]; // !!! automate this
         range_y = [100, 450];
         trans_y = createTransform(domain_y, range_y);
