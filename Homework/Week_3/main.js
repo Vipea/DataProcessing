@@ -5,7 +5,7 @@ txtFile.onreadystatechange = function() {
         let jsonData = JSON.parse(txtFile.responseText);
         console.log(jsonData);
         console.log(Object.values(jsonData));
-        var dates = {};
+        dates = {}
         var i = 1;
         domain_x = [1, 365]; // !!! automate this
         range_x = [120, 900]; // !!! what kind of y data?
@@ -45,11 +45,15 @@ txtFile.onreadystatechange = function() {
         console.log(domain_y[1])
         for (i = 0; i < domain_y[1]; i+= 50) {
           console.log(i)
+          ctx.setLineDash([]);
           ctx.moveTo(trans_x(domain_x[0]), trans_y(i))
           ctx.lineTo(trans_x(domain_x[0])-10, trans_y(i))
           ctx.textAlign = "left";
           ctx.font = "11px Helvetica";
-          ctx.fillText(340 - i, domain_x[0]+80, trans_y(i));
+          ctx.fillText(domain_y[1] - i, domain_x[0]+80, trans_y(i));
+          ctx.lineWidth = 0.1;
+          ctx.moveTo(trans_x(domain_x[0]+2), trans_y(i))
+          ctx.lineTo(trans_x(domain_x[1])-2, trans_y(i))
         }
 
         var i = 1;
@@ -60,6 +64,7 @@ txtFile.onreadystatechange = function() {
 
         // loop over all datapoint and draw lines in between
         Object.keys(jsonData).forEach(function(element) {
+
           ctx.lineTo(trans_x(i), trans_y(domain_y[1] - jsonData[element].FXX));
           dates[i] = jsonData[element].FXX
           i++
@@ -74,12 +79,17 @@ txtFile.onreadystatechange = function() {
 
         // x axis note, move to below the x axis line
         ctx.font = "15px Helvetica";
-        ctx.fillText("Days", range_x[1]/2, range_y[1]+50);
+        ctx.fillText("Month", range_x[1]/2, range_y[1]+50);
 +
         // y axis note, move to left of y axis line
         ctx.fillText("m/s", 45, range_y[1]/2);
 
         ctx.stroke();
+
+        ctx.canvas.addEventListener("mousemove", function (event) {
+          var mouseY = trans_y(event.clientY)
+          console.log(mouseY)
+        });
     };
 };
 
@@ -87,29 +97,7 @@ txtFile.open("GET", fileName);
 txtFile.send();
 
 $( document ).ready(function() {
-  const heen = $("#test")
-  console.log(heen)
-  $("#test").html("");
-  console.log("h1 is nu halo")
 
-  // const canvas = document.getElementById('my-house');
-  // const ctx = canvas.getContext('2d');
-  //
-  // // Set line width
-  // ctx.lineWidth = 10;
-  //
-  // // Wall
-  // ctx.strokeRect(75, 140, 150, 110);
-  //
-  // // Door
-  // ctx.fillRect(130, 190, 40, 60);
-  //
-  // // Roof
-  // ctx.moveTo(50, 140);
-  // ctx.lineTo(150, 60);
-  // ctx.lineTo(250, 140);
-  // ctx.closePath();
-  // ctx.stroke();
 
 });
 
@@ -137,5 +125,3 @@ function createTransform(domain, range){
       return alpha * x + beta;
     }
 }
-
-// titel naam studentnummer linknaardata allemaal op website
