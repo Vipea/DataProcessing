@@ -14,8 +14,7 @@ txtFile.onreadystatechange = function() {
 
         // Push windgust data to array, in order to extract the maximum value
         windgusts = [];
-        for (i=0; i<Object.values(jsonData).length; i++);
-        {
+        for (i=0; i<Object.values(jsonData).length; i++) {
           windgusts.push(Object.values(jsonData)[i].FXX);
         };
         max_y = Math.max(...windgusts);
@@ -31,11 +30,12 @@ txtFile.onreadystatechange = function() {
         range_y = [100, 450];
         trans_y = createTransform(domain_y, range_y);
 
-        detrans_y = deTrans_y(domain_y, range_y);
-
+        // Get the HTML canvas element and set its settings
         const canvas = document.getElementById('my-canvas');
         const ctx = canvas.getContext('2d');
         ctx.lineWidth = 1;
+
+        // Draw the x and y axes
         ctx.moveTo(trans_x(domain_x[0]), trans_y(domain_y[1]));
         ctx.lineTo(trans_x(domain_x[1]), trans_y(domain_y[1]));
         ctx.moveTo(trans_x(domain_x[0]), trans_y(domain_y[1]));
@@ -48,20 +48,23 @@ txtFile.onreadystatechange = function() {
                                          ["Aug", 243], ["Sep", 273],
                                          ["Oct", 304], ["Nov", 334],
                                          ["Dec", 365]];
+
         var amount_of_months = 12;
         for (i = 0; i < amount_of_months; i++) {
-          ctx.moveTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]));
-          ctx.lineTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]+10));
+          ctx.moveTo(trans_x(days_of_months_cumulative[i][1]),
+                             trans_y(domain_y[1]));
+          ctx.lineTo(trans_x(days_of_months_cumulative[i][1]),
+                             trans_y(domain_y[1]+10));
+
           ctx.textAlign = "center";
           ctx.font = "12px Helvetica";
-          ctx.fillText(days_of_months_cumulative[i][0], trans_x(days_of_months_cumulative[i][1]) - 31, trans_y(domain_y[1]+12));
-        } // gebruik de createTransform hier, ticks gaan nu per ?? dagen en je wilt ze eigenlijk per 50 bijv?
-
+          ctx.fillText(days_of_months_cumulative[i][0],
+                       trans_x(days_of_months_cumulative[i][1]) - 31,
+                       trans_y(domain_y[1]+12));
+        };
 
         // y ticks
-        console.log(domain_y[1]);
         for (i = 0; i < domain_y[1]; i+= 50) {
-          console.log(i);
           ctx.setLineDash([]);
           ctx.moveTo(trans_x(domain_x[0]), trans_y(i));
           ctx.lineTo(trans_x(domain_x[0])-10, trans_y(i));
@@ -74,31 +77,25 @@ txtFile.onreadystatechange = function() {
         }
         ctx.stroke();
 
+        // Draw wind gust data
         var i = 1;
         ctx.lineWidth = 0.5;
-
-        // startpoint
         ctx.moveTo(trans_x(i), trans_y(jsonData[20180101].FXX));
         i++;
-
-        // loop over all datapoint and draw lines in between
         ctx.beginPath();
         ctx.strokeStyle="red";
         Object.keys(jsonData).forEach(function(element) {
-
           ctx.lineTo(trans_x(i), trans_y(domain_y[1] - jsonData[element].FXX));
           dates[i] = jsonData[element].FXX;
           i++;
         });
         ctx.stroke();
 
-
-
         // set title, move to middle x location and upper y
         ctx.font = "30px Helvetica";
         ctx.textAlign = "center";
-        ctx.fillText("Strongest wind gust speed per day at De Bilt in 0.1 m/s (2018)", range_x[1]/2 + 60, 50);
-
+        ctx.fillText("Strongest wind gust speed per day at " +
+                     "De Bilt in 0.1 m/s (2018)", range_x[1]/2 + 60, 50);
 
         // x axis note, move to below the x axis line
         ctx.font = "15px Helvetica";
@@ -108,6 +105,7 @@ txtFile.onreadystatechange = function() {
         ctx.fillText("0.1 m/s", 45, range_y[1]/2);
 
         // Extra feature that shows the wind gust speed in KPH at mouse location
+        detrans_y = deTrans_y(domain_y, range_y);
         var show_gust = $("#gust");
         ctx.canvas.addEventListener("mousemove", function (event) {
           var mouseY = detrans_y(event.clientY - ctx.canvas.offsetTop);
