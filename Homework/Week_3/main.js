@@ -1,28 +1,44 @@
+/*
+Name: Max Frings
+Course: Data Processing 2018/2019 (Semester 2)
+Student number: 10544429
+Dataset source: http://projects.knmi.nl/klimatologie/daggegevens/selectie.cgi
+*/
+
+// Load KNMI wind gust data from json
 var fileName = "data.json";
 var txtFile = new XMLHttpRequest();
 txtFile.onreadystatechange = function() {
     if (txtFile.readyState === 4 && txtFile.status == 200) {
-        let jsonData = JSON.parse(txtFile.responseText);
-        console.log(jsonData);
-        console.log(Object.values(jsonData));
-        dates = {}
-        var i = 1;
-        domain_x = [1, 365]; // !!! automate this
-        range_x = [120, 900]; // !!! what kind of y data?
-        trans_x = createTransform(domain_x, range_x)
+        var jsonData = JSON.parse(txtFile.responseText);
 
-        domain_y = [0, 340]; // !!! automate this
-        range_y = [100, 450]
-        trans_y = createTransform(domain_y, range_y)
+        // Push windgust data to array, in order to extract the maximum value
+        windgusts = [];
+        for (i=0; i<Object.values(jsonData).length; i++);
+        {
+          windgusts.push(Object.values(jsonData)[i].FXX);
+        };
+        max_y = Math.max(...windgusts);
 
-        // !!! doe getwidth en length uit HTML in plaats van hardcode
-        const canvas = document.getElementById('my-house');
+        dates = {};
+        domain_x = [1, Object.values(jsonData).length];
+        range_x = [120, 900];
+        trans_x = createTransform(domain_x, range_x);
+
+
+        domain_y = [0, max_y]; // !!! automate this
+        range_y = [100, 450];
+        trans_y = createTransform(domain_y, range_y);
+
+        detrans_y = deTrans_y(domain_y, range_y);
+
+        const canvas = document.getElementById('my-canvas');
         const ctx = canvas.getContext('2d');
         ctx.lineWidth = 1;
-        ctx.moveTo(trans_x(domain_x[0]), trans_y(domain_y[1]))
-        ctx.lineTo(trans_x(domain_x[1]), trans_y(domain_y[1]))
-        ctx.moveTo(trans_x(domain_x[0]), trans_y(domain_y[1]))
-        ctx.lineTo(trans_x(domain_x[0]), trans_y(0))
+        ctx.moveTo(trans_x(domain_x[0]), trans_y(domain_y[1]));
+        ctx.lineTo(trans_x(domain_x[1]), trans_y(domain_y[1]));
+        ctx.moveTo(trans_x(domain_x[0]), trans_y(domain_y[1]));
+        ctx.lineTo(trans_x(domain_x[0]), trans_y(0));
 
         // x ticks
         var days_of_months_cumulative = [["Jan", 31], ["Feb", 59], ["Mar", 90],
@@ -33,8 +49,8 @@ txtFile.onreadystatechange = function() {
                                          ["Dec", 365]];
         var amount_of_months = 12;
         for (i = 0; i < amount_of_months; i++) {
-          ctx.moveTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]))
-          ctx.lineTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]+10))
+          ctx.moveTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]));
+          ctx.lineTo(trans_x(days_of_months_cumulative[i][1]), trans_y(domain_y[1]+10));
           ctx.textAlign = "center";
           ctx.font = "12px Helvetica";
           ctx.fillText(days_of_months_cumulative[i][0], trans_x(days_of_months_cumulative[i][1]) - 31, trans_y(domain_y[1]+12));
@@ -42,39 +58,45 @@ txtFile.onreadystatechange = function() {
 
 
         // y ticks
-        console.log(domain_y[1])
+        console.log(domain_y[1]);
         for (i = 0; i < domain_y[1]; i+= 50) {
-          console.log(i)
+          console.log(i);
           ctx.setLineDash([]);
-          ctx.moveTo(trans_x(domain_x[0]), trans_y(i))
-          ctx.lineTo(trans_x(domain_x[0])-10, trans_y(i))
+          ctx.moveTo(trans_x(domain_x[0]), trans_y(i));
+          ctx.lineTo(trans_x(domain_x[0])-10, trans_y(i));
           ctx.textAlign = "left";
           ctx.font = "11px Helvetica";
           ctx.fillText(domain_y[1] - i, domain_x[0]+80, trans_y(i));
           ctx.lineWidth = 0.1;
-          ctx.moveTo(trans_x(domain_x[0]+2), trans_y(i))
-          ctx.lineTo(trans_x(domain_x[1])-2, trans_y(i))
+          ctx.moveTo(trans_x(domain_x[0]+2), trans_y(i));
+          ctx.lineTo(trans_x(domain_x[1])-2, trans_y(i));
         }
+        ctx.stroke();
 
         var i = 1;
         ctx.lineWidth = 0.5;
+
         // startpoint
-        ctx.moveTo(trans_x(i), trans_y(jsonData[20180101].FXX))
+        ctx.moveTo(trans_x(i), trans_y(jsonData[20180101].FXX));
         i++;
 
         // loop over all datapoint and draw lines in between
+        ctx.beginPath();
+        ctx.strokeStyle="red";
         Object.keys(jsonData).forEach(function(element) {
 
           ctx.lineTo(trans_x(i), trans_y(domain_y[1] - jsonData[element].FXX));
-          dates[i] = jsonData[element].FXX
-          i++
+          dates[i] = jsonData[element].FXX;
+          i++;
         });
+        ctx.stroke();
+
 
 
         // set title, move to middle x location and upper y
         ctx.font = "30px Helvetica";
         ctx.textAlign = "center";
-        ctx.fillText("Strongest wind gust speed per day at De Bilt in m/s (2018)", range_x[1]/2, 50);
+        ctx.fillText("Strongest wind gust speed per day at De Bilt in 0.1 m/s (2018)", range_x[1]/2 + 60, 50);
 
 
         // x axis note, move to below the x axis line
@@ -82,26 +104,22 @@ txtFile.onreadystatechange = function() {
         ctx.fillText("Month", range_x[1]/2, range_y[1]+50);
 +
         // y axis note, move to left of y axis line
-        ctx.fillText("m/s", 45, range_y[1]/2);
+        ctx.fillText("0.1 m/s", 45, range_y[1]/2);
 
-        ctx.stroke();
-
+        // Extra feature that shows the wind gust speed in KPH at mouse location
+        var show_gust = $("#gust");
         ctx.canvas.addEventListener("mousemove", function (event) {
-          var mouseY = trans_y(event.clientY)
-          console.log(mouseY)
+          var mouseY = detrans_y(event.clientY - ctx.canvas.offsetTop);
+          if (mouseY <= max_y && mouseY >= 0) {
+            show_gust.html("Wind gust speed at your mouse location in KPH: " +
+                           Math.round(mouseY * 0.36) + " kilometers per hour");
+          };
         });
     };
 };
 
 txtFile.open("GET", fileName);
 txtFile.send();
-
-$( document ).ready(function() {
-
-
-});
-
-
 
 function createTransform(domain, range){
 	// domain is a two-element array of the data bounds [domain_min, domain_max]
@@ -123,5 +141,28 @@ function createTransform(domain, range){
     // returns the function for the linear transformation (y= a * x + b)
     return function(x){
       return alpha * x + beta;
+    }
+}
+
+function deTrans_y(domain, range){
+	// domain is a two-element array of the data bounds [domain_min, domain_max]
+	// range is a two-element array of the screen bounds [range_min, range_max]
+	// this gives you two equations to solve:
+	// range_min = alpha * domain_min + beta
+	// range_max = alpha * domain_max + beta
+ 		// a solution would be:
+
+    var domain_min = domain[0]
+    var domain_max = domain[1]
+    var range_min = range[0]
+    var range_max = range[1]
+
+    // formulas to calculate the alpha and the beta
+   	var alpha = (range_max - range_min) / (domain_max - domain_min)
+    var beta = range_max - alpha * domain_max
+
+    // returns the value that is associated with this coordinate
+    return function(x){
+      return max_y - (x - beta) / alpha;
     }
 }
