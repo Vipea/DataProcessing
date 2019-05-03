@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script type="text/javascript" src="d3/d3.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            d3.select("head").append("title").text("Bar Chart")
+            d3.select("body").append("h1").text("Bar Chart");
+            d3.select("h1").style("color", "blue").style("font-family", "sans-serif")
+            d3.select("body").append("h2").text("Max Frings 10544429");
+            d3.select("body").append("p").text("Description about dataset and visualization");
+
+            // Dataset
+            var dataset = [ 5, 10, 15, 20, 25 ];
+
+            // Width and height
+			      var w = 500;
+			      var h = 200;
+            var barPadding = 1;
+
+
+
+            var ozoneNL = []
+            var ozoneData = d3.json("data.json")
+            ozoneData.then(function(data) {
+              Object.values(data).forEach(function(d) {
+                ozoneNL.push(d.Netherlands)
+              })
+
+              //Create SVG element
+                    var svg = d3.select("body")
+                          .append("svg")
+                          .attr("width", w)
+                          .attr("height", h);
+
+                    var rectangles = svg.selectAll("rect")
+                        .data(ozoneNL)
+                        .enter()
+                        .append("rect");
+
+                    rectangles.attr("x", function(d, i) {
+                          return i * (w/ozoneNL.length);
+                        })
+                         .attr("y", 0)
+                         .attr("width", w / ozoneNL.length - barPadding)
+                         .attr("height", function(d) {
+                          return d;
+                         })
+                         .attr("fill", "lightblue")
+            })
+            console.log(ozoneNL)
+
+
+        </script>
+    </body>
+</html>
