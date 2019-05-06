@@ -9,10 +9,16 @@
     <body>
         <script type="text/javascript">
             d3.select("head").append("title").text("Bar Chart")
-            d3.select("body").append("h1").text("Bar Chart");
-            d3.select("h1").style("color", "blue").style("font-family", "sans-serif")
-            d3.select("body").append("h2").text("Max Frings 10544429");
-            d3.select("body").append("p").text("Description about dataset and visualization");
+
+            d3.select("body").style("text-align", "center").style("font-family", "sans-serif").append("h1").text("Bar Chart")
+
+            d3.select("h1").style("color", "lightblue")
+
+            d3.select("body").append("h2").text("Max Frings").style("color", "lightblue");
+
+            d3.select("body").append("h3").text("10544429").style("color", "lightblue");
+
+            d3.select("body").append("p").text("Ozone concentrations in The Netherlands throughout the years 1980 - 2012");
 
             // Dataset
             var dataset = [ 5, 10, 15, 20, 25 ];
@@ -41,7 +47,7 @@
 
 
               // margins
-              const margin = { top: 20, right: 40, bottom: 20, left: 100 };
+              const margin = { top: 20, right: 40, bottom: 20, left: 40 };
               const innerWidth = w - margin.right - margin.left;
               const innerHeight = h - margin.top - margin.bottom;
 
@@ -51,7 +57,7 @@
 
               const xScale = d3.scaleLinear()
                 .domain([d3.min(years), d3.max(years)])
-                .range([0, w])
+                .range([0, innerWidth])
 
 
               // const yScale = d3.scaleLinear()
@@ -76,7 +82,7 @@
                           .attr("width", w)
                           .attr("height", h);
 
-          
+
 
                     var rectangles = svg.selectAll("rect")
                         .data(ozoneNL)
@@ -85,7 +91,7 @@
 
 
                     rectangles.attr("x", function(d, i) {
-                          return i * (w/ozoneNL.length);
+                          return i * (innerWidth/ozoneNL.length);
                         })
                          .attr("y", function(d) {
                            return (innerHeight-d) // ??? dit beste manier? want gaat ook beetje naar beneden zo
@@ -131,7 +137,7 @@
 
     const yAxis = svg.append("g")
       .classed("yAxis", true)
-      .attr('transform', `translate(30,${0})`) // ??? wat hier in de translate?
+      .attr('transform', `translate(20,${0})`) // ??? wat hier in de translate?
       .call(d3.axisLeft(yScale))
                  //.call(d3.axisLeft(yScale))
 
