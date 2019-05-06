@@ -3,6 +3,8 @@
     <head>
         <meta charset="utf-8">
         <script type="text/javascript" src="d3/d3.js"></script>
+        <link rel="stylesheet" href="styles.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     </head>
     <body>
         <script type="text/javascript">
@@ -17,17 +19,56 @@
 
             // Width and height
 			      var w = 500;
-			      var h = 200;
+			      var h = 400;
             var barPadding = 1;
 
 
-
-            var ozoneNL = []
+            const years = []
+            const ozoneNL = []
+            const ozoneWorld = [];
             var ozoneData = d3.json("data.json")
             ozoneData.then(function(data) {
+              console.log(data)
               Object.values(data).forEach(function(d) {
                 ozoneNL.push(d.Netherlands)
               })
+              Object.values(data).forEach(function(d) {
+                ozoneWorld.push(d.World)
+              })
+              Object.keys(data).forEach(function(d) {
+                years.push(d)
+              })
+
+
+              // margins
+              const margin = { top: 20, right: 40, bottom: 20, left: 100 };
+              const innerWidth = w - margin.right - margin.left;
+              const innerHeight = h - margin.top - margin.bottom;
+
+              // x and y axes
+              console.log(d3.min(years))
+              console.log(d3.max(years))
+
+              const xScale = d3.scaleLinear()
+                .domain([d3.min(years), d3.max(years)])
+                .range([0, w])
+
+
+              // const yScale = d3.scaleLinear()
+              //  .domain([0, d3.max(ozoneData, function(d,i) {
+              //    return d.Netherlands
+              //  })])
+              //  .range([innerHeight,0]).nice();
+
+              const yScale = d3.scaleLinear()
+               .domain([0, d3.max(ozoneNL)])
+               .range([innerHeight,0]).nice();
+
+              // Create div to show values
+              var div = d3.select("body").append("div")
+                .attr("class", "tooltip-donut")
+                .style("opacity", 0);
+
 
               //Create SVG element
                     var svg = d3.select("body")
@@ -35,23 +76,70 @@
                           .attr("width", w)
                           .attr("height", h);
 
+          
+
                     var rectangles = svg.selectAll("rect")
                         .data(ozoneNL)
                         .enter()
-                        .append("rect");
+                        .append("rect")
+
 
                     rectangles.attr("x", function(d, i) {
                           return i * (w/ozoneNL.length);
                         })
-                         .attr("y", 0)
-                         .attr("width", w / ozoneNL.length - barPadding)
+                         .attr("y", function(d) {
+                           return (innerHeight-d) // ??? dit beste manier? want gaat ook beetje naar beneden zo
+                         })
+                         .attr("width", innerWidth / ozoneNL.length - barPadding)
                          .attr("height", function(d) {
                           return d;
-                         })
-                         .attr("fill", "lightblue")
-            })
-            console.log(ozoneNL)
+                        })
+                        .attr("fill", "lightblue")
 
+                         // Add hover effect on mouse over
+                         .on('mouseover', function (d, i) {
+                           d3.select(this).transition()
+                           .duration('50')
+                           .attr('opacity', '.85')
+
+                         //Makes the new div appear on hover:
+
+          div.transition()
+               .duration(50)
+               .style("opacity", 1)
+               div.html(d)
+     .style("left", (d3.event.pageX + 10) + "px")
+     .style("top", (d3.event.pageY - 15) + "px")
+})
+                         // Disable hover effect on mouse out
+                         .on('mouseout', function (d, i) {
+                           d3.select(this).transition()
+                           .duration('50')
+                           .attr('opacity', '1');
+
+
+                         //Makes the new div disappear:
+          div.transition()
+               .duration('50')
+               .style("opacity", 0);
+});
+//   axes
+  const xAxis = svg.append("g")
+    .classed("xAxis", true)
+    .attr('transform', `translate(0,${innerHeight})`) // ??? wat hier in de translate?
+    .call(d3.axisBottom(xScale))
+
+    const yAxis = svg.append("g")
+      .classed("yAxis", true)
+      .attr('transform', `translate(30,${0})`) // ??? wat hier in de translate?
+      .call(d3.axisLeft(yScale))
+                 //.call(d3.axisLeft(yScale))
+
+            })
+
+
+// why y axis off screen ???
+// why so few x ticks ???
 
         </script>
     </body>
