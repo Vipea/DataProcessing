@@ -67,12 +67,16 @@ $( document ).ready(function() {
   const barPadding = 5;
 
   // Initialize empty lists and push data
-  const ozoneNL = [];
   const ozoneData = d3.json("data.json");
   ozoneData.then(function(data) {
-    Object.values(data).forEach(function(d) {
-      ozoneNL.push(d.Netherlands);
-    })
+
+  // Find maximum value in dataset
+  let ozoneMax = Number.NEGATIVE_INFINITY;
+  let tmp;
+  for (var i=Object.values(data).length-1; i>=0; i--) {
+      tmp = Object.values(data)[i].Netherlands;
+      if (tmp > ozoneMax) ozoneMax = tmp;
+  };
 
     // Set margin and the inner width and height of the SVG
     const margin = { top: 20, right: 40, bottom: 30, left: 40 };
@@ -91,7 +95,7 @@ $( document ).ready(function() {
 
     // Set y scale
     const yScale = d3.scaleLinear()
-     .domain([0, d3.max(ozoneNL)])
+     .domain([0, ozoneMax])
      .range([innerHeight+xStart,yStart]).nice();
 
     // Create div to show bar value on mouse hover
@@ -168,6 +172,7 @@ $( document ).ready(function() {
                .attr("height", function(d) {
                                               return data[d][region];
                                            })
+
                // Set the y location of the rectangle
                .attr("y", function(d) {
                                          return (innerHeight +
