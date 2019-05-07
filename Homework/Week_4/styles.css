@@ -10,6 +10,27 @@ div.tooltip-donut {
      font-size: 1.3rem;
 }
 
+div.legend {
+  padding: .5rem;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#legend-world {
+  background: #3399ff;
+}
+
+#legend-nl {
+  background: lightblue;
+}
+
+span {
+  padding-left: 5px;
+  font-size: 17px;
+}
+
 svg {
   margin-left: 40px;
   margin-right: 40px;

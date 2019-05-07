@@ -18,15 +18,23 @@
 
             d3.select("body").append("h3").text("10544429").style("color", "lightblue");
 
-            d3.select("body").append("p").text("Ozone concentrations in The Netherlands throughout the years 1980 - 2012");
+            d3.select("body").append("p").text("Ozone concentrations in The Netherlands and global average throughout the years 1980 - 2012 in Dobson units");
 
-            // Dataset
-            var dataset = [ 5, 10, 15, 20, 25 ];
+            d3.select("body").append("div").attr("class", "legend").attr("id", "legend-nl")
+
+            d3.select("body").append("span").text("Netherlands")
+
+            d3.select("body").append("br")
+            d3.select("body").append("br")
+
+            d3.select("body").append("div").attr("class", "legend").attr("id", "legend-world")
+
+            d3.select("body").append("span").text("Global")
 
             // Width and height
-			      var w = 800;
-			      var h = 400;
-            var barPadding = 1;
+			      const w = 950;
+			      const h = 400;
+            const barPadding = 5;
 
 
             const years = [];
@@ -71,33 +79,77 @@
                .range([innerHeight+20,20]).nice(); // remove hardcode !!!
 
               // Create div to show values
-              var div = d3.select("body").append("div")
+              const div = d3.select("body").append("div")
                 .attr("class", "tooltip-donut")
                 .style("opacity", 0);
 
 
               //Create SVG element
-                    var svg = d3.select("body")
+                    const svg = d3.select("body")
                           .append("svg")
                           .attr("width", w)
                           .attr("height", h);
 
+                    const rectanglesWorld = svg.selectAll(".worldBar")
+                        .data(Object.keys(data))
+                        .enter()
+                        .append("rect")
+                        .attr("class", "worldBar")
+
+                        rectanglesWorld.attr("x", function(d, i) {
+                              return i * (innerWidth/years.length) + 30 + (innerWidth / years.length - barPadding) / 2; // remove this hardcode
+                            })
+                             .attr("y", function(d) {
+                               return (innerHeight+20-data[d]["World"]) // !!! remove hardcode ??? dit beste manier? want gaat ook beetje naar beneden zo
+                             })
+                             .attr("width", (innerWidth / years.length - barPadding) / 2)
+                             .attr("height", function(d) {
+                              return data[d]["World"];
+                            })
+                            .attr("fill", "#3399ff")
+                            // Add hover effect on mouse over
+                            .on('mouseover', function (d, i) {
+                              d3.select(this).transition()
+                              .duration('50')
+                              .attr('opacity', '.8')
+
+                            //Makes the new div appear on hover for world data:
+
+             div.transition()
+                  .duration(50)
+                  .style("opacity", 1)
+                  div.html(data[d]["World"])
+        .style("left", (d3.event.pageX + 10) + "px")
+        .style("top", (d3.event.pageY - 15) + "px")
+   })
+                            // Disable hover effect on mouse out
+                            .on('mouseout', function (d, i) {
+                              d3.select(this).transition()
+                              .duration('50')
+                              .attr('opacity', '1');
 
 
-                    var rectangles = svg.selectAll(".nedBar")
+                            //Makes the new div disappear:
+             div.transition()
+                  .duration('50')
+                  .style("opacity", 0);
+   });
+
+
+                    const rectanglesNL = svg.selectAll(".nedBar")
                         .data(Object.keys(data))
                         .enter()
                         .append("rect")
                         .attr("class", "nedBar")
 
 
-                    rectangles.attr("x", function(d, i) {
-                          return i * (innerWidth/ozoneNL.length) + 30; // remove this hardcode
+                    rectanglesNL.attr("x", function(d, i) {
+                          return i * (innerWidth/years.length) + 30; // remove this hardcode
                         })
                          .attr("y", function(d) {
                            return (innerHeight+20-data[d]["Netherlands"]) // !!! remove hardcode ??? dit beste manier? want gaat ook beetje naar beneden zo
                          })
-                         .attr("width", innerWidth / ozoneNL.length - barPadding)
+                         .attr("width", (innerWidth / years.length - barPadding) / 2)
                          .attr("height", function(d) {
                           return data[d]["Netherlands"];
                         })
@@ -146,16 +198,12 @@
       .classed("yAxis", true)
       .attr('transform', `translate(30,${0})`) // ??? wat hier in de translate?
       .call(d3.axisLeft(yScale))
-                 //.call(d3.axisLeft(yScale))
 
-            })
+
+            });
 
             // !!! kloppen verhoudingen wel?
 
-
-// why y axis off screen ???
-// why so few x ticks ???
-// bars don't exactly line up with years ???
         </script>
     </body>
 </html>
