@@ -15,20 +15,17 @@ $( document ).ready(function() {
 
   d3.select("body")
     .style("text-align", "center")
-    .style("font-family", "sans-serif").append("h1")
+    .style("font-family", "sans-serif")
+    .append("h1")
     .text("Bar Chart");
 
-  d3.select("h1")
-    .style("color", "lightblue");
-
-  d3.select("body").append("h2")
+  d3.select("body")
+    .append("h2")
     .text("Max Frings")
-    .style("color", "lightblue");
 
   d3.select("body")
     .append("h3")
     .text("10544429")
-    .style("color", "lightblue");
 
   d3.select("body")
     .append("p")
@@ -41,7 +38,8 @@ $( document ).ready(function() {
     .attr("id", "legend-nl");
 
     d3.select("body")
-    .append("span").text("Netherlands");
+    .append("span")
+    .text("Netherlands");
 
   d3.select("body")
     .append("br");
@@ -56,7 +54,7 @@ $( document ).ready(function() {
 
   d3.select("body")
     .append("span")
-    .text("Global");
+    .text("Global average");
 
   d3.select("body")
     .append("br");
@@ -69,17 +67,12 @@ $( document ).ready(function() {
   const barPadding = 5;
 
   // Initialize empty lists and push data
-  const years = [];
   const ozoneNL = [];
   const ozoneData = d3.json("data.json");
   ozoneData.then(function(data) {
-    console.log(data);
     Object.values(data).forEach(function(d) {
       ozoneNL.push(d.Netherlands);
     })
-    Object.keys(data).forEach(function(d) {
-      years.push(d);
-    }) // !!! in 1 loop of verwijder lijsten
 
     // Set margin and the inner width and height of the SVG
     const margin = { top: 20, right: 40, bottom: 30, left: 40 };
@@ -93,7 +86,7 @@ $( document ).ready(function() {
 
     // Set x scale
     const xScale = d3.scaleBand()
-      .domain(years)
+      .domain(Object.keys(data))
       .range([0, innerWidth - barPadding]);
 
     // Set y scale
@@ -121,71 +114,84 @@ $( document ).ready(function() {
          .data(Object.keys(data))
          .enter()
          .append("rect")
-         .attr("class", region);
+         .attr("class", region)
+         .attr("fill", color);
 
        // Set the x location of the rectangle
        rectangles.attr("x", function(d, i) {
                                               return i *
                                               (innerWidth/
-                                              years.length) +
+                                              Object.keys(data).length) +
                                               xAxisStart;
                                            })
 
+              // Add hover effect on mouse over
+              .on('mouseover',
+              function (d, i) {
+                                 d3.select(
+                                 this).transition()
+                                .duration('50')
+                                .attr('opacity', '.8')
+
+                                // Makes div appear on hover
+                                div.transition()
+                                .duration(50)
+                                .style("opacity", 1)
+                                div.html(data[d][region])
+                                .style("left", (
+                                      d3.event.pageX + 10) + "px")
+                                .style("top", (
+                                      d3.event.pageY - 15) + "px");
+                              })
+
+              // Disable hover effect on mouse out
+              .on('mouseout',
+              function (d, i) {
+                              d3.select(this).transition()
+                              .duration('50')
+                              .attr('opacity', '1');
+
+                              // Make the div disappear
+                              div.transition()
+                              .duration('50')
+                              .style("opacity", 0);
+                           })
+
+               // Set rectangle width, height and color
+               .attr("width", innerWidth / Object.keys(data).length - barPadding)
+               .attr("y", h - margin.bottom)
+               .transition()
+               .duration(500)
+               .delay(function (d, i) {
+                 return i * 100;
+               })
+               .attr("height", function(d) {
+                                              return data[d][region];
+                                           })
                // Set the y location of the rectangle
                .attr("y", function(d) {
                                          return (innerHeight +
                                                 yStart -
                                                 data[d][region]);
                                       })
-
-               // Set rectangle width, height and color
-               .attr("width", innerWidth / years.length - barPadding)
-               .attr("height", function(d) {
-                                              return data[d][region];
-                                           })
-               .attr("fill", color)
-
-               // Add hover effect on mouse over
-               .on('mouseover',
-               function (d, i) {
-                                  d3.select(
-                                  this).transition()
-                                 .duration('50')
-                                 .attr('opacity', '.8')
-
-                                 // Makes div appear on hover
-                                 div.transition()
-                                 .duration(50)
-                                 .style("opacity", 1)
-                                 div.html(data[d][region])
-                                 .style("left", (
-                                       d3.event.pageX + 10) + "px")
-                                 .style("top", (
-                                       d3.event.pageY - 15) + "px");
-                               })
-
-             // Disable hover effect on mouse out
-             .on('mouseout',
-             function (d, i) {
-                               d3.select(this).transition()
-                               .duration('50')
-                               .attr('opacity', '1');
-
-                               // Make the div disappear
-                               div.transition()
-                               .duration('50')
-                               .style("opacity", 0);
-                            });
     };
 
     // Create bar charts for The Netherlands and the world
     createBars("Netherlands", "lightblue");
     createBars("World", "#3399ff");
 
+    // Set footer with the dataset source
+    d3.select("body")
+      .append("footer")
+      .append("a")
+      .attr("href", "https://www.clo.nl/en/indicators/en0218-ozone-layer")
+      .attr("target", "_blank")
+      .text("Dataset source");
+
     // Append x axis to the SVG
     const xAxis = svg.append("g")
       .classed("xAxis", true)
-      .attr('transform', `translate(${xAxisStart},${innerHeight + yStart})`) // !!! remove hardcode ??? wat hier in de translate?
+      .attr('transform', `translate(${xAxisStart},${innerHeight + yStart})`)
       .call(d3.axisBottom(xScale))
 
       // Rotate the x axis tick tags so they don't overlap
