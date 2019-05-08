@@ -187,7 +187,8 @@ $( document ).ready(function() {
 
                // Set the y location of the rectangle
                .attr("y", function(d) {
-                                         return yScale(data[d][region]) + margin.top;
+                                         return yScale(data[d][region]) +
+                                                margin.top;
                                       })
     };
 
