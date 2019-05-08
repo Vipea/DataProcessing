@@ -4,8 +4,7 @@ Course: Data Processing 2018/2019 (Semester 2)
 Student number: 10544429
 Dataset source: https://www.clo.nl/en/indicators/en0218-ozone-layer
 */
-// !!! labels x en y as
-// ??? moet legenda in de SVG?
+
 // Wait for it ...
 $( document ).ready(function() {
 
@@ -72,12 +71,13 @@ $( document ).ready(function() {
   const ozoneData = d3.json("data.json");
   ozoneData.then(function(data) {
 
-  // Find maximum value in dataset
-  let ozoneMax = Number.NEGATIVE_INFINITY;
-  let tmp;
-  for (let i = Object.values(data).length - 1; i >= 0; i--) {
-      tmp = Object.values(data)[i].Netherlands;
-      if (tmp > ozoneMax) ozoneMax = tmp;
+                                  // Find maximum value in dataset
+                                  let ozoneMax = Number.NEGATIVE_INFINITY;
+                                  let tmp;
+                                  for (let i = Object.values(data).length - 1;
+                                      i >= 0; i--) {
+                                      tmp = Object.values(data)[i].Netherlands;
+                                      if (tmp > ozoneMax) ozoneMax = tmp;
   };
 
     // Set margin and the inner width and height of the SVG
@@ -117,69 +117,73 @@ $( document ).ready(function() {
     function createBars(region, color, xOffset)
     {
 
-       // Create rectangle for each data point
-       const rectangles = svg.selectAll("." + region)
-         .data(Object.keys(data))
-         .enter()
-         .append("rect")
-         .attr("class", region)
-         .attr("fill", color);
+      // Create rectangle for each data point
+      const rectangles = svg.selectAll("." + region)
+       .data(Object.keys(data))
+       .enter()
+       .append("rect")
+       .attr("class", region)
+       .attr("fill", color);
 
-       // Set the x location of the rectangle
-       rectangles.attr("x", function(d, i) {
-                                              return i *
-                                              (innerWidth /
-                                              Object.keys(data).length) +
-                                              margin.left + ((innerWidth /
-                                              Object.keys(data).length -
-                                              barPadding) / 2) * xOffset +
-                                              barPadding / 2;
-                                           })
+      // Set the x location of the rectangle
+      rectangles.attr("x", function(d, i) {
+                                            return i *
+                                            (innerWidth /
+                                            Object.keys(data).length) +
+                                            margin.left + ((innerWidth /
+                                            Object.keys(data).length -
+                                            barPadding) / 2) * xOffset +
+                                            barPadding / 2;
+                                         })
 
-              // Add hover effect on mouse over
-              .on('mouseover',
-              function (d, i) {
-                                 d3.select(
-                                 this).transition("barOpacity")
-                                .duration(50)
-                                .attr('opacity', '.8')
+      // Add hover effect on mouse over
+      .on('mouseover',
+      function (d, i) {
+                         d3.select(
+                         this).transition("barOpacity")
+                        .duration(50)
+                        .attr('opacity', '.8')
 
-                                // Makes div appear on hover
-                                div.transition("divAppear")
-                                .duration(50)
-                                .style("opacity", 1)
-                                div.html(data[d][region])
-                                .style("left", (
-                                      d3.event.pageX + 10) + "px")
-                                .style("top", (
-                                      d3.event.pageY - 15) + "px");
-                              })
+                        // Makes div appear on hover
+                        div.transition("divAppear")
+                        .duration(50)
+                        .style("opacity", 1)
+                        div.html(data[d][region])
+                        .style("left", (
+                              d3.event.pageX + 10) + "px")
+                        .style("top", (
+                              d3.event.pageY - 15) + "px");
+                      })
 
-              // Disable hover effect on mouse out
-              .on('mouseout', function (d, i) {
-                                                d3.select(this).transition(
-                                                                "barDisappear")
-                                                .duration(50)
-                                                .attr('opacity', '1');
+      // Disable hover effect on mouse out
+      .on('mouseout', function (d, i) {
+                                        d3.select(this).transition(
+                                                        "barDisappear")
+                                        .duration(50)
+                                        .attr('opacity', '1');
 
-                                // Make the div disappear
-                                div.transition("divDisappear")
-                                .duration('50')
-                                .style("opacity", 0);
-                              })
-
-               // Set rectangle width, height and color
-               .attr("width", (xScale.bandwidth() - barPadding) / 2)
-               .attr("y", h - margin.bottom)
-               .transition("flyIn")
-               .duration(2500)
-               .delay(function (d, i) {
-                                        return i * 50;
+                                        // Make the div disappear
+                                        div.transition("divDisappear")
+                                        .duration('50')
+                                        .style("opacity", 0);
                                       })
-               .attr("height", function(d) {
-                                              return innerHeight -
-                                                     yScale(data[d][region]);
-                                           })
+
+      // Set rectangle width
+      .attr("width", (xScale.bandwidth() - barPadding) / 2)
+
+      // Make bars fly in with an animation
+      .attr("y", h - margin.bottom)
+      .transition("flyIn")
+      .duration(2500)
+      .delay(function (d, i) {
+                               return i * 50;
+                             })
+
+      // Set rectangle height                       
+      .attr("height", function(d) {
+                                    return innerHeight -
+                                           yScale(data[d][region]);
+                                 })
 
                // Set the y location of the rectangle
                .attr("y", function(d) {
