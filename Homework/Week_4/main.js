@@ -179,7 +179,7 @@ $( document ).ready(function() {
                                return i * 50;
                              })
 
-      // Set rectangle height                       
+      // Set rectangle height
       .attr("height", function(d) {
                                     return innerHeight -
                                            yScale(data[d][region]);
