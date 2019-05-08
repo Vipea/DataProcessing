@@ -4,7 +4,8 @@ Course: Data Processing 2018/2019 (Semester 2)
 Student number: 10544429
 Dataset source: https://www.clo.nl/en/indicators/en0218-ozone-layer
 */
-
+// !!! labels x en y as
+// ??? moet legenda in de SVG?
 // Wait for it ...
 $( document ).ready(function() {
 
@@ -54,6 +55,7 @@ $( document ).ready(function() {
 
   d3.select("body")
     .append("span")
+    .attr("id", "text-world")
     .text("Global average");
 
   d3.select("body")
@@ -73,30 +75,28 @@ $( document ).ready(function() {
   // Find maximum value in dataset
   let ozoneMax = Number.NEGATIVE_INFINITY;
   let tmp;
-  for (var i=Object.values(data).length-1; i>=0; i--) {
+  for (let i = Object.values(data).length - 1; i >= 0; i--) {
       tmp = Object.values(data)[i].Netherlands;
       if (tmp > ozoneMax) ozoneMax = tmp;
   };
 
     // Set margin and the inner width and height of the SVG
-    const margin = { top: 20, right: 40, bottom: 30, left: 40 };
+    const margin = {top: 30, right: 50, bottom: 30, left: 50};
     const innerWidth = w - margin.right - margin.left;
     const innerHeight = h - margin.top - margin.bottom;
 
     // Set x and y start values to display bar chart properly
-    const xStart = 20;
-    const yStart = 20;
-    const xAxisStart = 30;
+    const axesLabelOffset = 8;
 
     // Set x scale
     const xScale = d3.scaleBand()
       .domain(Object.keys(data))
-      .range([0, innerWidth - barPadding]);
+      .range([0, innerWidth]);
 
     // Set y scale
     const yScale = d3.scaleLinear()
      .domain([0, ozoneMax])
-     .range([innerHeight+xStart,yStart]).nice();
+     .range([innerHeight,0]);
 
     // Create div to show bar value on mouse hover
     const div = d3.select("body").append("div")
@@ -107,10 +107,14 @@ $( document ).ready(function() {
     const svg = d3.select("body")
       .append("svg")
       .attr("width", w)
-      .attr("height", h);
+      .attr("height", h)
+      .attr("margin-top", margin.top)
+      .attr("margin-right", margin.right)
+      .attr("margin-bottom", margin.bottom)
+      .attr("margin-left", margin.left);
 
     // Function to create bars
-    function createBars(region, color)
+    function createBars(region, color, xOffset)
     {
 
        // Create rectangle for each data point
@@ -124,21 +128,24 @@ $( document ).ready(function() {
        // Set the x location of the rectangle
        rectangles.attr("x", function(d, i) {
                                               return i *
-                                              (innerWidth/
+                                              (innerWidth /
                                               Object.keys(data).length) +
-                                              xAxisStart;
+                                              margin.left + ((innerWidth /
+                                              Object.keys(data).length -
+                                              barPadding) / 2) * xOffset +
+                                              barPadding / 2;
                                            })
 
               // Add hover effect on mouse over
               .on('mouseover',
               function (d, i) {
                                  d3.select(
-                                 this).transition()
-                                .duration('50')
+                                 this).transition("barOpacity")
+                                .duration(50)
                                 .attr('opacity', '.8')
 
                                 // Makes div appear on hover
-                                div.transition()
+                                div.transition("divAppear")
                                 .duration(50)
                                 .style("opacity", 1)
                                 div.html(data[d][region])
@@ -149,41 +156,40 @@ $( document ).ready(function() {
                               })
 
               // Disable hover effect on mouse out
-              .on('mouseout',
-              function (d, i) {
-                              d3.select(this).transition()
-                              .duration('50')
-                              .attr('opacity', '1');
+              .on('mouseout', function (d, i) {
+                                                d3.select(this).transition(
+                                                                "barDisappear")
+                                                .duration(50)
+                                                .attr('opacity', '1');
 
-                              // Make the div disappear
-                              div.transition()
-                              .duration('50')
-                              .style("opacity", 0);
-                           })
+                                // Make the div disappear
+                                div.transition("divDisappear")
+                                .duration('50')
+                                .style("opacity", 0);
+                              })
 
                // Set rectangle width, height and color
-               .attr("width", innerWidth / Object.keys(data).length - barPadding)
+               .attr("width", (xScale.bandwidth() - barPadding) / 2)
                .attr("y", h - margin.bottom)
-               .transition()
-               .duration(500)
+               .transition("flyIn")
+               .duration(2500)
                .delay(function (d, i) {
-                 return i * 100;
-               })
+                                        return i * 50;
+                                      })
                .attr("height", function(d) {
-                                              return data[d][region];
+                                              return innerHeight -
+                                                     yScale(data[d][region]);
                                            })
 
                // Set the y location of the rectangle
                .attr("y", function(d) {
-                                         return (innerHeight +
-                                                yStart -
-                                                data[d][region]);
+                                         return yScale(data[d][region]) + margin.top;
                                       })
     };
 
     // Create bar charts for The Netherlands and the world
-    createBars("Netherlands", "lightblue");
-    createBars("World", "#3399ff");
+    createBars("Netherlands", "lightblue", 0);
+    createBars("World", "#3399ff", 1);
 
     // Set footer with the dataset source
     d3.select("body")
@@ -193,10 +199,20 @@ $( document ).ready(function() {
       .attr("target", "_blank")
       .text("Dataset source");
 
+    // Set title
+    svg.append("text")
+        .attr("x", margin.left)
+        .attr("y", margin.top / 2)
+        .attr("text-anchor", "left")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("Ozone concentration in Dobson units (DU)");
+
     // Append x axis to the SVG
     const xAxis = svg.append("g")
       .classed("xAxis", true)
-      .attr('transform', `translate(${xAxisStart},${innerHeight + yStart})`)
+      .attr('transform', `translate(${margin.left},
+                                    ${innerHeight + margin.top})`)
       .call(d3.axisBottom(xScale))
 
       // Rotate the x axis tick tags so they don't overlap
@@ -207,11 +223,28 @@ $( document ).ready(function() {
       .attr("transform", "rotate(60)")
       .style("text-anchor", "start");
 
+      svg.append("text")
+    .attr("class", "x label")
+    .attr("text-anchor", "end")
+    .attr("x", w)
+    .attr("y", h - axesLabelOffset)
+    .text("Years");
+
+
     // Append y axis to the SVG
     const yAxis = svg.append("g")
       .classed("yAxis", true)
-      .attr('transform', `translate(${xAxisStart},0)`)
+      .attr('transform', `translate(${margin.left}, ${margin.top})`)
       .call(d3.axisLeft(yScale));
+
+      svg.append("text")
+          .attr("class", "y label")
+          .attr("text-anchor", "end")
+          .attr("y", 0)
+          .attr("x", - h / 3)
+          .attr("dy", ".75em")
+          .attr("transform", "rotate(-90)")
+          .text("Dobson units");
 
   });
 });
