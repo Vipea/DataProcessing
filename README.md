@@ -27,3 +27,10 @@ This program visualizes maximum wind gust in JSON format data using canvas. Firs
 Usage: convertCSV2JSON.py
 
 Then the program reads the data and draws the graph using canvas, as shown when going to the index.html file in this folder.
+
+# Week 4
+This program visualizes the global average and Dutch ozone concentrations. First the ozone dataset in CSV format must be converted to a JSON file using convertCSV2JSON.py
+
+Usage: convertCSV2JSON.py
+
+Then the program reads the data and draws a bar chart using D3 as shown when going to the index.html file in this folder.
