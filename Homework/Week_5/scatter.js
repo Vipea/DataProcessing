@@ -17,12 +17,6 @@ Promise.all(requests).then(function(response) {
     const teenViolData = transformResponse(response[0]);
     const teenPregData = transformResponse(response[1]);
     const GDPData = transformResponseGDP(response[2]);
-    console.log("teenViolData")
-    console.log(teenViolData)
-    console.log("teenPregData")
-    console.log(teenPregData)
-    console.log("GDPData")
-    console.log(GDPData)
 
     // SVG width and height
     const w = 950;
@@ -94,20 +88,38 @@ Promise.all(requests).then(function(response) {
 
 
     // console.log(GDP2016)
-    var scatter_this_year = 2012
+    let scatter_this_year = 2012
 
     const margin = {top: 30, right: 50, bottom: 50, left: 50};
     const innerWidth = w - margin.right - margin.left;
     const innerHeight = h - margin.top - margin.bottom;
 
-    const yScale = d3.scaleLinear()
-     .domain([0, 30]) // !!! don't hardcode
-     .range([innerHeight, 0]);
 
 
-   const xScale = d3.scaleLinear()
-    .domain([0, 30]) // !!! don't hardcode
-    .range([0, innerWidth]);
+    // Make a HTML website without typing HTML, say what?
+    d3.select("head")
+      .append("title")
+      .text("Scatter Plot");
+
+    d3.select("body")
+      .style("text-align", "center")
+      .style("font-family", "sans-serif")
+      .append("h1")
+      .text("Scatter Plot");
+
+    d3.select("body")
+      .append("h2")
+      .text("Max Frings")
+
+    d3.select("body")
+      .append("h3")
+      .text("10544429")
+
+    d3.select("body")
+      .append("p")
+      .text("Scatter plot of teen pregnancy and teen violence rates between " +
+            "2012 - 2016 for 30 different countries. The surface area of " +
+            "each data point represents the GDP of that country.");
 
     // Create div to show value on hover
     const div = d3.select("body").append("div")
@@ -120,12 +132,32 @@ Promise.all(requests).then(function(response) {
                 .attr("width", w)
                 .attr("height", h);
 
-
-
-    const circles = svg.selectAll("circle")
-       .data(years[scatter_this_year])
+    let circles = svg.selectAll("circle")
+       .data(years[start_year])
        .enter()
-       .append("circle")
+       .append("circle");
+
+      function getMax(arr, prop) {
+    var max;
+    for (var i=0 ; i<arr.length ; i++) {
+        if (!max || parseInt(arr[i][prop]) > parseInt(max[prop]))
+            max = arr[i];
+    }
+    return max;
+}
+console.log(getMax(years[scatter_this_year], "teenViolence"))
+let yScale = d3.scaleLinear()
+ .domain([0, getMax(years[scatter_this_year], "teenViolence").teenViolence]) // !!! don't hardcode
+ .range([innerHeight, 0]);
+
+let xScale = d3.scaleLinear()
+.domain([0, 30]) // !!! don't hardcode
+.range([0, innerWidth]);
+
+    function createScatter(scatterYear) {
+
+      svg.selectAll("circle").data(years[start_year])
+
        .attr("cx", function(d) {
             return xScale(d.teenPregnancy);
         })
@@ -166,11 +198,12 @@ Promise.all(requests).then(function(response) {
                                               .attr('opacity', '1');
 
                                               // Make the div disappear
-                                              div.transition("divDisappear")
+                                              div.transition("divAppear")
 
                                               .style("opacity", 0);
                                             })
-
+          return
+        } // end createScatter
 
         // Set footer with the dataset source
         d3.select("body")
@@ -220,11 +253,55 @@ Promise.all(requests).then(function(response) {
               .text("Teen violence");
 
               // Create select dropdown
-              var svg = d3.select("body")
-              for (i = start_year; i <= end_year; i++) {
-              .append("select");
-            } // ??? kan dit
+              d3.select("body")
+              .append("div")
+              .attr("class", "slidecontainer")
+              .append("input")
+              .attr("type", "range")
+              .attr("min", start_year)
+              .attr("max", end_year)
+              .attr("value", "50")
+              .attr("class", "slider")
+              .attr("id", "myRange")
 
+              d3.select("body")
+              .append("span")
+              .attr("id", "showVal")
+
+              let slider = document.getElementById("myRange");
+          let output = document.getElementById("showVal");
+          output.innerHTML = slider.value; // Display the default slider value
+
+          // Update the current slider value (each time you drag the slider handle)
+          slider.oninput = function() {
+console.log(getMax(years[this.value], "teenViolence").teenViolence)
+// select axes and update them
+            yScale = d3.scaleLinear()
+
+             .domain([0, getMax(years[this.value], "teenViolence").teenViolence]) // !!! don't hardcode
+             .range([innerHeight, 0]);
+
+            console.log(this.value)
+            svg.selectAll("circle").data(years[this.value])
+
+             .attr("cx", function(d) {
+                  return xScale(d.teenPregnancy);
+              })
+              .attr("cy", function(d) {
+                   return yScale(d.teenViolence);
+              })
+
+              // Sets the surface area of the circle in such a way that the circle surface areas correspond with the GDP
+              .attr("r", function(d) {
+                  return Math.sqrt(d.GDP) / 30
+                })
+
+            output.innerHTML = slider.value;
+}
+
+createScatter(2012)
+             // ??? kan dit
+// !!! slider
 }).catch(function(e){
     throw(e);
 });
