@@ -4,3 +4,20 @@ Course: Data Processing 2018/2019 (Semester 2)
 Student number: 10544429
 Dataset source: https://www.clo.nl/en/indicators/en0218-ozone-layer
 */
+
+body {
+  font-family: sans-serif;
+  text-align: center;
+}
+
+div.tooltip {
+     position: absolute;
+     text-align: center;
+     padding: .5rem;
+     background: #FFFFFF;
+     color: #313639;
+     border: 1px solid #313639;
+     border-radius: 8px;
+     pointer-events: none;
+     font-size: 1.3rem;
+}
