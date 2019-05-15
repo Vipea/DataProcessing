@@ -17,7 +17,7 @@ window.onload = function() {
     const GDPData = transformResponseGDP(response[2]);
 
     // Configure dataset
-    datasets = ["teenViolence", "teenPregnancy", "GDP"]
+    datasets = ["teenViolence", "teenPregnancy", "GDP"];
     dataset = {};
     dataset[datasets[0]] = teenViolData;
     dataset[datasets[1]] = teenPregData;
@@ -26,9 +26,9 @@ window.onload = function() {
     // Set constants
     const w = 1400;
     const h = 500;
-    const start_year = 2010
-    const end_year = 2014
-    let scatter_this_year = 2010
+    const start_year = 2010;
+    const end_year = 2014;
+    let scatter_this_year = 2010;
     const margin = {
       top: 30,
       right: 50,
@@ -39,13 +39,13 @@ window.onload = function() {
     const innerHeight = h - margin.top - margin.bottom;
 
     // Structure data in a D3-friendly way
-    let years = restructureData(dataset, start_year, end_year)
+    let years = restructureData(dataset, start_year, end_year);
 
     // Set title and subheading
     makeTitle("Scatter Plot", "Max Frings", "10544429", "Scatter plot of " +
       "teen pregnancy and teen violence rates between " +
       "2010 - 2014 for 30 different countries. The surface area of " +
-      "each data point represents the GDP of that country.")
+      "each data point represents the GDP of that country.");
 
     // Create div to show value on hover
     const div = d3.select("body").append("div")
