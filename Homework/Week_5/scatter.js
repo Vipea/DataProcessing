@@ -79,7 +79,7 @@ Promise.all(requests).then(function(response) {
 
   } // closes for each year
 
-
+console.log(years)
 
     // COUNTRY -> Violence/Pregnancy/GDP -> Value
 
@@ -94,7 +94,7 @@ Promise.all(requests).then(function(response) {
     const innerWidth = w - margin.right - margin.left;
     const innerHeight = h - margin.top - margin.bottom;
 
-
+    // !! legenda voor grootte bolletjes
 
     // Make a HTML website without typing HTML, say what?
     d3.select("head")
@@ -151,7 +151,7 @@ let yScale = d3.scaleLinear()
  .range([innerHeight, 0]);
 
 let xScale = d3.scaleLinear()
-.domain([0, 30]) // !!! don't hardcode
+.domain([0, getMax(years[scatter_this_year], "teenPregnancy").teenPregnancy]) // !!! don't hardcode
 .range([0, innerWidth]);
 
     function createScatter(scatterYear) {
@@ -183,7 +183,7 @@ let xScale = d3.scaleLinear()
                               div.transition("divAppear")
 
                               .style("opacity", 1)
-                              div.html(Math.round(d.GDP))
+                              div.html(d.country + "\n$" + Math.round(d.GDP))
                               .style("left", (
                                     d3.event.pageX + 10) + "px")
                               .style("top", (
@@ -274,31 +274,60 @@ let xScale = d3.scaleLinear()
 
           // Update the current slider value (each time you drag the slider handle)
           slider.oninput = function() {
-console.log(getMax(years[this.value], "teenViolence").teenViolence)
 // select axes and update them
             yScale = d3.scaleLinear()
-
              .domain([0, getMax(years[this.value], "teenViolence").teenViolence]) // !!! don't hardcode
              .range([innerHeight, 0]);
 
+            console.log(getMax(years[this.value], "teenViolence").teenViolence)
+
+             xScale = d3.scaleLinear()
+             .domain([0, getMax(years[this.value], "teenPregnancy").teenPregnancy]) // !!! don't hardcode
+             .range([0, innerWidth]);
+
             console.log(this.value)
-            svg.selectAll("circle").data(years[this.value])
 
-             .attr("cx", function(d) {
-                  return xScale(d.teenPregnancy);
-              })
-              .attr("cy", function(d) {
-                   return yScale(d.teenViolence);
-              })
+            d3.selectAll(".yAxis")
+            .attr('transform', `translate(${margin.left}, ${margin.top})`)
+            .call(d3.axisLeft(yScale));
 
-              // Sets the surface area of the circle in such a way that the circle surface areas correspond with the GDP
-              .attr("r", function(d) {
-                  return Math.sqrt(d.GDP) / 30
-                })
+            d3.select(".xAxis")
+            .attr('transform', `translate(${margin.left},
+                                          ${innerHeight + margin.top})`)
+            .call(d3.axisBottom(xScale))
 
-            output.innerHTML = slider.value;
+            svg.selectAll("circle")
+            .data(years[this.value])
+            .transition()  // Transition from old to new
+                        .duration(1000)  // Length of animation
+                        // .each(element, function() {  // Start animation
+                        //     d3.select(this)  // 'this' means the current element
+                        //         .attr("fill", "#3399ff")  // Change color
+                        //         .attr("r", 10);  // Change size
+                        // })
+                        .delay(function(d, i) {
+                            return 200;  // Dynamic delay (i.e. each item delays a little longer)
+                        })
+                        .attr("cx", function(d) {
+                            return xScale(d.teenPregnancy);  // Circle's X
+                        })
+                        .attr("cy", function(d) {
+                            return yScale(d.teenViolence);  // Circle's Y
+                        })
+                        // .each("end", function() {  // End animation
+                        //     d3.select(this)  // 'this' means the current element
+                        //         .transition()
+                        //         .duration(500)
+                        //         .attr("fill", "black")  // Change color
+                        //         .attr("r", function(d) {
+                        //             return Math.sqrt(d.GDP) / 30
+                        //           })  // Change radius
+
+//
+// });
+
+output.innerHTML = slider.value;
 }
-
 createScatter(2012)
              // ??? kan dit
 // !!! slider
@@ -306,6 +335,8 @@ createScatter(2012)
     throw(e);
 });
 };
+
+// ??? hoe landnamen erin
 
 
 
