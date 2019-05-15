@@ -34,3 +34,7 @@ This program visualizes the global average and Dutch ozone concentrations. First
 Usage: convertCSV2JSON.py
 
 Then the program reads the data and draws a bar chart using D3 as shown when going to the index.html file in this folder.
+
+# Week 5
+This program creates a scatter plot using D3, it plots the variables of Children (0-17) living in areas with crime or violence against Adolescent fertility rate.
+The years between 2010 and 2014 are visualized for 30 different countries. Each circle represents a country and its size represents the GDP of that country.
