@@ -4,6 +4,7 @@ Course: Data Processing 2018/2019 (Semester 2)
 Student number: 10544429
 Dataset source: https://www.clo.nl/en/indicators/en0218-ozone-laye
 */
+
 window.onload = function() {
   const teensInViolentArea = "https://stats.oecd.org/SDMX-JSON/data/CWB/AUS+AUT+BEL+BEL-VLG+CAN+CHL+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+OAVG+NMEC+BRA+BGR+CHN+COL+CRI+HRV+CYP+IND+IDN+MLT+PER+ROU+RUS+ZAF.CWB11/all?startTime=2010&endTime=2017"
   const teenPregnancies = "https://stats.oecd.org/SDMX-JSON/data/CWB/AUS+AUT+BEL+BEL-VLG+CAN+CHL+CZE+DNK+EST+FIN+FRA+DEU+GRC+HUN+ISL+IRL+ISR+ITA+JPN+KOR+LVA+LTU+LUX+MEX+NLD+NZL+NOR+POL+PRT+SVK+SVN+ESP+SWE+CHE+TUR+GBR+USA+OAVG+NMEC+BRA+BGR+CHN+COL+CRI+HRV+CYP+IND+IDN+MLT+PER+ROU+RUS+ZAF.CWB46/all?startTime=1960&endTime=2017"
@@ -41,8 +42,8 @@ window.onload = function() {
     let years = restructureData(dataset, start_year, end_year)
 
     // Set title and subheading
-    makeTitle("Scatter Plot", "Max Frings", "10544429", "Scatter plot of teen " +
-      "pregnancy and teen violence rates between " +
+    makeTitle("Scatter Plot", "Max Frings", "10544429", "Scatter plot of " +
+      "teen pregnancy and teen violence rates between " +
       "2010 - 2014 for 30 different countries. The surface area of " +
       "each data point represents the GDP of that country.")
 
@@ -57,12 +58,14 @@ window.onload = function() {
       .attr("width", w)
       .attr("height", h);
 
+    // Create a circle datapoint per data object
     let circles = svg.selectAll(".datapoint")
       .data(years[start_year])
       .enter()
       .append("circle")
       .attr("class", "datapoint");
 
+    // This function gets the maximum value from an object
     function getMax(arr, prop) {
       var max;
       for (var i = 0; i < arr.length; i++) {
@@ -71,18 +74,26 @@ window.onload = function() {
       }
       return max;
     }
+
+    // Set the y scale
     let yScale = d3.scaleLinear()
-      .domain([0, getMax(years[scatter_this_year], "teenViolence").teenViolence]) // !!! don't hardcode
+      .domain([0, getMax(years[scatter_this_year], "teenViolence").
+        teenViolence
+      ])
       .range([innerHeight, 0]);
 
+    // Set the x scale
     let xScale = d3.scaleLinear()
-      .domain([0, getMax(years[scatter_this_year], "teenPregnancy").teenPregnancy]) // !!! don't hardcode
+      .domain([0, getMax(years[scatter_this_year], "teenPregnancy").
+        teenPregnancy
+      ])
       .range([0, innerWidth]);
 
+    // This function creates a scatterplot
     function createScatter(scatterYear) {
 
+      // Sets x and y location of datapoints
       svg.selectAll(".datapoint").data(years[start_year])
-
         .attr("cx", function(d) {
           return xScale(d.teenPregnancy) + margin.left;
         })
@@ -90,9 +101,9 @@ window.onload = function() {
           return yScale(d.teenViolence) + margin.top;
         })
 
-        // Sets the surface area of the circle in such a way that the circle surface areas correspond with the GDP
+        // Sets the surface area of the circles
         .attr("r", function(d) {
-          return Math.sqrt(d.GDP) / 30
+          return Math.sqrt(d.GDP) / 30;
         })
         .attr("fill", "#3399ff");
 
@@ -101,12 +112,10 @@ window.onload = function() {
           function(d, i) {
             d3.select(
                 this).transition("barOpacity")
-
               .attr('opacity', '.5')
 
             // Makes div appear on hover
             div.transition("divAppear")
-
               .style("opacity", 1)
             div.html(d.country + "\n$" + Math.round(d.GDP))
               .style("left", (
@@ -119,16 +128,14 @@ window.onload = function() {
         .on('mouseout', function(d, i) {
           d3.select(this).transition(
               "barDisappear")
-
             .attr('opacity', '1');
 
           // Make the div disappear
           div.transition("divAppear")
-
             .style("opacity", 0);
-        })
-      return
-    } // end createScatter
+        });
+      return;
+    };
 
     // Set footer with the dataset source
     d3.select("body")
@@ -152,14 +159,15 @@ window.onload = function() {
       .classed("xAxis", true)
       .attr('transform', `translate(${margin.left},
                                           ${innerHeight + margin.top})`)
-      .call(d3.axisBottom(xScale))
+      .call(d3.axisBottom(xScale));
 
+    // Set x label
     svg.append("text")
       .attr("class", "x label")
       .attr("text-anchor", "end")
       .attr("x", w / 2)
       .attr("y", h - 10)
-      .text("Teen pregnancy");
+      .text("Adolescent fertility rate (%)");
 
     // Append y axis to the SVG
     const yAxis = svg.append("g")
@@ -167,14 +175,15 @@ window.onload = function() {
       .attr('transform', `translate(${margin.left}, ${margin.top})`)
       .call(d3.axisLeft(yScale));
 
+    // Set y label
     svg.append("text")
       .attr("class", "y label")
       .attr("text-anchor", "end")
       .attr("y", 0)
-      .attr("x", -h / 3)
+      .attr("x", -40)
       .attr("dy", ".75em")
       .attr("transform", "rotate(-90)")
-      .text("Teen violence");
+      .text("Children (0-17) living in areas with crime or violence (%)");
 
     // Create slider to select years
     d3.select("body")
@@ -186,18 +195,19 @@ window.onload = function() {
       .attr("max", end_year)
       .attr("value", "50")
       .attr("class", "slider")
-      .attr("id", "myRange")
+      .attr("id", "myRange");
 
+    // Show the value of the slider
     d3.select("body")
       .append("span")
-      .attr("id", "showVal")
+      .attr("id", "showVal");
 
+    // Show the value of the slider in the HTML page
     let slider = document.getElementById("myRange");
     let output = document.getElementById("showVal");
     output.innerHTML = slider.value;
 
-    // Create legend
-    // Handmade legend
+    // Create a legend
     svg.append("circle").attr("cx", margin.left + 30).attr("cy", margin.top + 20).attr("r", Math.sqrt(20000) / 30).style("fill", "#3399ff")
     svg.append("circle").attr("cx", margin.left + 30).attr("cy", margin.top + 50).attr("r", Math.sqrt(50000) / 30).style("fill", "#3399ff")
     svg.append("circle").attr("cx", margin.left + 30).attr("cy", margin.top + 80).attr("r", Math.sqrt(100000) / 30).style("fill", "#3399ff")
@@ -206,23 +216,29 @@ window.onload = function() {
     svg.append("text").attr("x", margin.left + 50).attr("y", margin.top + 80).text("$100.000").style("font-size", "15px").attr("alignment-baseline", "middle")
 
     function changeYear(year) {
+
+      // Update the y scale
       let yScale = d3.scaleLinear()
         .domain([0, getMax(years[year], "teenViolence").teenViolence])
         .range([innerHeight, 0]);
 
+      // Update the x scale
       let xScale = d3.scaleLinear()
         .domain([0, getMax(years[year], "teenPregnancy").teenPregnancy])
         .range([0, innerWidth]);
 
+      // Set the y axis
       d3.selectAll(".yAxis")
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
         .call(d3.axisLeft(yScale));
 
+      // Set the x axis
       d3.select(".xAxis")
         .attr('transform', `translate(${margin.left},
-                                            ${innerHeight + margin.top})`)
+                                      ${innerHeight + margin.top})`)
         .call(d3.axisBottom(xScale))
 
+      // Update size and location of circles using a transition
       let circles = svg.selectAll(".datapoint")
         .data(years[year])
         .transition()
@@ -234,10 +250,15 @@ window.onload = function() {
         .attr("cy", function(d) {
           return yScale(d.teenViolence) + margin.top;
         })
+        .attr("r", function(d) {
+          return Math.sqrt(d.GDP) / 30
+        })
 
+      // Shows the year that is currently selected
       output.innerHTML = slider.value;
     };
 
+    // Changes the datapoint every time the slider is moved
     slider.oninput = function() {
       changeYear(this.value);
     };
@@ -250,6 +271,7 @@ window.onload = function() {
   });
 };
 
+// Sets the title and subheadings for the HTML page
 function makeTitle(title1, name, studentID, subtitle) {
   d3.select("head")
     .append("title")
@@ -275,6 +297,7 @@ function makeTitle(title1, name, studentID, subtitle) {
 }
 
 
+// Restructure dataset per year so D3 can scatter the data
 function restructureData(dataset, start_year, end_year) {
   years = {};
 
@@ -369,7 +392,7 @@ function transformResponse(data) {
         } else {
           dataObject[tempObj["Country"]].push(tempObj);
         };
-      }
+      };
     });
   });
 
@@ -440,6 +463,5 @@ function transformResponseGDP(data) {
     });
   });
 
-  // return the finished product!
   return dataObject;
 }
