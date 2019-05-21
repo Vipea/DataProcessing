@@ -327,6 +327,7 @@ function restructureData(dataset, start_year, end_year) {
       };
     });
   };
+  console.log(years)
   return years;
 };
 
