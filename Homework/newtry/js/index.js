@@ -33,61 +33,61 @@ $.getJSON("data.json", function( data ) {
   })
   console.log(alldata)
 
-  // w = 500
-  // h = 500
-  // // Create SVG element
+  w = 500
+  h = 500
+  // Create SVG element
   // var svg = d3.select("body")
   //   .append("svg")
   //   .attr("width", 500)
   //   .attr("height", 500);
 
-//   console.log(alldata["1961"]["China"])
-//
-//
-//     const rectangles = svg.selectAll(".datapoint")
-//      .data(alldata["1961"]["China"])
-//      .enter()
-//      .append("rect")
-//      .attr("class", datapoint)
-//      .attr("fill", "blue");
-//
-//     // Set the x location of the rectangle
-//     rectangles.attr("x", function(d, i) {
-//                                           return i *
-//                                           (w /
-//                                         alldata["1961"]["China"].length)
-//                                        })
-//
-//     // Add hover effect on mouse over
-//     .on('mouseover',
-//     function (d, i) {
-//                        d3.select(
-//                        this).transition("barOpacity")
-//                       .duration(50)
-//                       .attr('opacity', '.8')
-//
-//                       // Makes div appear on hover
-//                       div.transition("divAppear")
-//                       .duration(50)
-//                       .style("opacity", 1)
-//                     })
-//
-//     // Disable hover effect on mouse out
-//     .on('mouseout', function (d, i) {
-//                                       d3.select(this).transition(
-//                                                       "barDisappear")
-//                                       .duration(50)
-//                                       .attr('opacity', '1');
-//
-//                                       // Make the div disappear
-//                                       div.transition("divDisappear")
-//                                       .duration('50')
-//                                       .style("opacity", 0);
-//                                     })
-//
-//     // Set rectangle width
-//     .attr("width", (xScale.bandwidth() - barPadding) / 2)
-// });
+  console.log(alldata["1961"]["China"])
+
+
+    const rectangles = svg.selectAll(".datapoint")
+     .data(alldata["1961"]["China"])
+     .enter()
+     .append("rect")
+     .attr("class", datapoint)
+     .attr("fill", "blue");
+
+    // Set the x location of the rectangle
+    rectangles.attr("x", function(d, i) {
+                                          return i *
+                                          (w /
+                                        alldata["1961"]["China"].length)
+                                       })
+
+    // Add hover effect on mouse over
+    .on('mouseover',
+    function (d, i) {
+                       d3.select(
+                       this).transition("barOpacity")
+                      .duration(50)
+                      .attr('opacity', '.8')
+
+                      // Makes div appear on hover
+                      div.transition("divAppear")
+                      .duration(50)
+                      .style("opacity", 1)
+                    })
+
+    // Disable hover effect on mouse out
+    .on('mouseout', function (d, i) {
+                                      d3.select(this).transition(
+                                                      "barDisappear")
+                                      .duration(50)
+                                      .attr('opacity', '1');
+
+                                      // Make the div disappear
+                                      div.transition("divDisappear")
+                                      .duration('50')
+                                      .style("opacity", 0);
+                                    })
+
+    // Set rectangle width
+    .attr("width", (xScale.bandwidth() - barPadding) / 2)
+});
 
 const start_year = 1961;
 const end_year = 2014;
