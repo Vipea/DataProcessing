@@ -33,29 +33,59 @@ $.getJSON("data.json", function( data ) {
   })
   console.log(alldata)
 
+
+  // // Set margin and the inner width and height of the SVG
+  // const margin = {top: 30, right: 50, bottom: 30, left: 50};
+  // const innerWidth = w - margin.right - margin.left;
+  // const innerHeight = h - margin.top - margin.bottom;
+
+
+  // Set y scale
+  let yScale = d3.scaleLinear()
+   .domain([0, 480190000])
+   .range([800,0]);
+
+
   w = 500
   h = 500
-  // Create SVG element
-  // var svg = d3.select("body")
-  //   .append("svg")
-  //   .attr("width", 500)
-  //   .attr("height", 500);
+
 
   console.log(alldata["1961"]["China"])
 
 
-    const rectangles = svg.selectAll(".datapoint")
-     .data(alldata["1961"]["China"])
+  // set the dimensions and margins of the graph
+var width = 450
+  height = 450
+  margin = 40
+
+// The radius of the pieplot is half the width or half the height (smallest one). I substract a bit of margin.
+var radius = Math.min(width, height) / 2 - margin
+
+// append the svg object to the div called 'my_dataviz'
+var svg = d3.select("#my_dataviz")
+.append("svg")
+  .attr("width", width)
+  .attr("height", height)
+.append("g")
+  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+
+  // Create div to show bar value on mouse hover
+  const div = d3.select("body").append("div")
+    .attr("class", "tooltip-donut")
+    .style("opacity", 0);
+
+
+    let rectangles = svg.selectAll(".datapoint")
+     .data(Object.values(alldata["1961"]["China"]))
      .enter()
      .append("rect")
-     .attr("class", datapoint)
-     .attr("fill", "blue");
+     .attr("class", "datapoint")
+     .attr("fill", "red");
 
     // Set the x location of the rectangle
     rectangles.attr("x", function(d, i) {
-                                          return i *
-                                          (w /
-                                        alldata["1961"]["China"].length)
+                                          return i * 50
                                        })
 
     // Add hover effect on mouse over
@@ -86,8 +116,36 @@ $.getJSON("data.json", function( data ) {
                                     })
 
     // Set rectangle width
-    .attr("width", (xScale.bandwidth() - barPadding) / 2)
-});
+    .attr("width", 30)
+
+    // Set rectangle height
+    .attr("height", function(d) {
+      console.log(d.killed)
+                                  return yScale(d.killed);
+                               })
+
+             // Set the y location of the rectangle
+             .attr("y", function(d) {
+                                       return 0;
+                                    })
+// alldata jaar land
+function updateBars(year, country) {
+  var country = countryList.find(function(c) {
+    return c.id === country.id
+  })
+  country = country.name
+  console.log(year)
+  console.log(country)
+  console.log(alldata[year][country])
+
+  rectangles
+  .data(Object.values(alldata[year][country]))
+  .enter()
+  .attr("height", function(d) {
+    console.log(d.killed)
+                                return yScale(d.killed);
+                             })
+}
 
 const start_year = 1961;
 const end_year = 2014;
@@ -324,6 +382,12 @@ function mousemove() {
   enter(c)
 }
 
+function mouseclick() {
+  console.log("geklikt")
+  var c = getCountry(this)
+  updateBars(slider.value, c)
+}
+
 function getCountry(event) {
   var pos = projection.invert(d3.mouse(event))
   return countries.features.find(function(f) {
@@ -349,6 +413,7 @@ canvas
     .on('end', dragended)
    )
   .on('mousemove', mousemove)
+  .on('click', mouseclick)
 
 loadData(function(world, cList) {
   land = topojson.feature(world, world.objects.land)
@@ -360,6 +425,6 @@ loadData(function(world, cList) {
   autorotate = d3.timer(rotate)
 })
 
-
+});
 
 // ??? missing country names

@@ -11,6 +11,10 @@ span {
   text-align: center;
 }
 
+#my-dataviz {
+  width:100%
+}
+
 #globe {
   cursor: move;
 }
