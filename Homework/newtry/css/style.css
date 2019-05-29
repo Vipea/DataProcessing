@@ -1,3 +1,9 @@
+/* Name: Max Frings
+   Student number: 10544429
+   Course: Data Processing 2018/2019 (Semester 2)
+   This file's purpose in life is to visualize animals killed around the globe
+   http://www.fao.org/faostat/en/#data/QL/metadata */
+
 html, body {
   margin: 0;
   padding: 0;
@@ -10,7 +16,6 @@ span {
   font-size: 30px;
   text-align: center;
 }
-
 
 #my_dataviz {
   margin-top: -60px;
