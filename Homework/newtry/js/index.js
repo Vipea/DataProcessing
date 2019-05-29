@@ -4,19 +4,21 @@
    This file's purpose in life is to visualize animals killed around the globe
    http://www.fao.org/faostat/en/#data/QL/metadata */
 
-alldata = {}
+// Initialize variables
+let alldata = {}
 let yearSelect = 1961
-totalList = {}
+let totalList = {}
 let mintotal = 1000000
 let maxtotal = 1000000
-var countryinfo;
+const start_year = 1961;
+const end_year = 2014;
 
 // Get JSON data and store it into variables
 $.getJSON("data.json", function(data) {
-  values = Object.values(data)
+  let values = Object.values(data)
   values.forEach(function(element) {
 
-    animalList = [{
+    let animalList = [{
       "animal": "Pigs",
       "killed": element.Pigs
     }, {
@@ -35,7 +37,7 @@ $.getJSON("data.json", function(data) {
       "animal": "Goat",
       "killed": element.Goat
     }]
-    total = element.Pigs + element.Cattle + element.Sheep + element.Turkeys + element.Chickens + element.Goat
+    let total = element.Pigs + element.Cattle + element.Sheep + element.Turkeys + element.Chickens + element.Goat
 
     if (totalList[element.Year] == null) {
       totalList[element.Year] = {}
@@ -63,9 +65,6 @@ $.getJSON("data.json", function(data) {
     }
   })
 
-  const start_year = 1961;
-  const end_year = 2014;
-
   // Create slider to select years
   d3.select(".container")
     .append("div")
@@ -88,6 +87,7 @@ $.getJSON("data.json", function(data) {
   let output = document.getElementById("showVal");
   output.innerHTML = slider.value;
 
+  // Changes the year
   function changeYear(year) {
 
     // Shows the year that is currently selected
@@ -100,16 +100,19 @@ $.getJSON("data.json", function(data) {
     yearSelect = this.value
   };
 
+  // Set the color range for the heatmap
   colorRange = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
   var myColor = d3.scaleLinear()
     .domain([mintotal, maxtotal / 100000, maxtotal / 10000, maxtotal / 1000, maxtotal / 100, maxtotal / 10])
     .range(colorRange);
 
+  // Append svg for the legend and piechart
   var legendSvg = d3.select("#my_dataviz")
     .append("svg")
     .attr("width", 300)
     .attr("height", 410);
 
+  // Set heatmap legend constants
   legendWidth = 200
   legendHeight = 300
   legendMargin = 30
@@ -120,6 +123,7 @@ $.getJSON("data.json", function(data) {
     .attr("height", "100%")
     .attr("fill", "white");
 
+  // Set legend title
   legendSvg.append("text")
     .attr("x", 0)
     .attr("y", 80)
@@ -173,8 +177,8 @@ $.getJSON("data.json", function(data) {
     return Math.round(d) + '%';
   });
 
+  // Set heatmap legend colors
   var colourPct = d3.zip(pct, colorRange);
-
   colourPct.forEach(function(d) {
     gradient.append('stop')
       .attr('offset', d[0])
@@ -190,8 +194,6 @@ $.getJSON("data.json", function(data) {
     .attr('height', legendHeight)
     .style('fill', 'url(#gradient)');
 
-
-
   // set the dimensions and margins of the graph
   var width = $("#my_dataviz").width() + 100
   height = width
@@ -199,7 +201,6 @@ $.getJSON("data.json", function(data) {
 
   // The radius of the pieplot is half the width or half the height (smallest one). I substract a bit of margin.
   var radius = Math.min(width, height) / 2 - margin
-
   var svg = d3.select("#my_dataviz")
     .append("svg")
     .attr('id', 'globeinfo')
@@ -247,6 +248,7 @@ $.getJSON("data.json", function(data) {
   var i = parseInt($('#count').text());
   var tim;
 
+  // Counts the amount of animals killed every 50 milliseconds
   function run() {
     tim = setInterval(function() {
       i = i + 87
@@ -256,12 +258,12 @@ $.getJSON("data.json", function(data) {
 
   run();
 
-
   // A function that create / update the plot for a given variable:
   function update(data, year, country, isfirst) {
     let countryinfo = d3.select(".countryinfo")
     countryinfo.remove()
 
+    // Set piechart title
     d3.select("#globeinfo")
       .append("text")
       .text(country + " " + year)
@@ -278,15 +280,16 @@ $.getJSON("data.json", function(data) {
       })
     var data_ready = pie(d3.entries(data[year][country]))
 
+    // Generate piechart arc
     var arcGenerator = d3.arc()
       .innerRadius(0)
       .outerRadius(radius)
 
+    // Append piechart slices
     svg
       .selectAll('mySlices')
       .data(data_ready)
       .enter()
-
     var u = svg.selectAll("path")
       .data(data_ready)
       .attr("id", "pie")
@@ -309,36 +312,43 @@ $.getJSON("data.json", function(data) {
       .style("stroke-width", "1px")
       .style("opacity", 1)
 
+    // Remove piechart labels
     pielabels = svg
       .selectAll('#mySlices')
-
     pielabels
       .exit()
       .remove()
 
+    // Remove piechart groups that are not present
     u
       .exit()
       .remove()
   }
 
+  // Transform the svg to the correct location
   svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+  // Get the label
   var key = function(d) {
     return d.data.label;
   };
 
   // ms to wait after dragging before auto-rotating
   var rotationDelay = 3000
+
   // scale of the globe (not the canvas element)
   var scaleFactor = 0.9
+
   // autorotation speed
   var degPerSec = 6
+
   // start angles
   var angles = {
     x: -20,
     y: 40,
     z: 0
   }
+
   // colors
   var colorWater = '#fff'
   var colorLand = '#111'
@@ -586,6 +596,5 @@ $.getJSON("data.json", function(data) {
   var str_counter_2 = counter_list[2];
   var display_str = "";
   var display_div = document.getElementById("display_div_id");
-
 
 });
