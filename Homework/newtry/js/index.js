@@ -50,7 +50,7 @@ $.getJSON("data.json", function( data ) {
   const start_year = 1961;
   const end_year = 2014;
   // Create slider to select years
-  d3.select("body")
+  d3.select(".container")
     .append("div")
     .attr("class", "slidecontainer")
     .append("input")
@@ -62,7 +62,7 @@ $.getJSON("data.json", function( data ) {
     .attr("id", "myRange");
 
   // Show the value of the slider
-  d3.select("body")
+  d3.select(".container")
     .append("span")
     .attr("id", "showVal");
 
@@ -89,10 +89,10 @@ $.getJSON("data.json", function( data ) {
   .range(colorRange);
 
 
-    var legendSvg = d3.select("body")
+    var legendSvg = d3.select("#my_dataviz")
       .append("svg")
       .attr("width", 300)
-      .attr("height", 400);
+      .attr("height", 410);
 
     legendWidth = 200
     legendHeight = 300
@@ -102,14 +102,14 @@ $.getJSON("data.json", function( data ) {
        legendSvg.append("rect")
        .attr("width", "100%")
        .attr("height", "100%")
-       .attr("fill", "#686868");
+       .attr("fill", "white");
 
        legendSvg.append("text")
          .attr("x", 0)
          .attr("y", 80)
          .attr("dy", ".25em")
-         .text("Animals Killed")
-         .attr("fill","white");
+         .text("Animals killed for meat")
+         .attr("fill","black");
 
        // make the bar gradient
        var gradient = legendSvg.append('defs')
@@ -173,10 +173,10 @@ $.getJSON("data.json", function( data ) {
 
 
   // set the dimensions and margins of the graph
-var width = $("#my_dataviz").width()
+var width = $("#my_dataviz").width() + 100
 console.log(width)
   height = width
-  margin = 40
+  margin = 100
 
 // The radius of the pieplot is half the width or half the height (smallest one). I substract a bit of margin.
 var radius = Math.min(width, height) / 2 - margin
@@ -188,24 +188,14 @@ var radius = Math.min(width, height) / 2 - margin
 
 var svg = d3.select("#my_dataviz")
 .append("svg")
+  .attr('id', 'globeinfo')
   .attr("width", width)
-  .attr("height", height)
+  .attr("height", height - 80)
 .append("g")
-  .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-svg.append("g")
-	.attr("class", "slices");
-svg.append("g")
-	.attr("class", "labels");
-svg.append("g")
-	.attr("class", "lines");
-
-// create 2 data_set
-var data1 = {a: 9, b: 20, c:30, d:8, e:12}
-var data2 = {a: 6, b: 16, c:20, d:14, e:19, f:12}
 var data3 = alldata["1961"]["China"]
 
-animals = ["Pigs", "Cattle", "Sheep", "Turkeys", "Chicken", "Goat"]
+animals = ["Pigs", "Cattle", "Sheep", "Turkeys", "Chickens", "Goat"]
 
 // set the color scale
 var color = d3.scaleOrdinal()
@@ -218,23 +208,15 @@ const legend = svg.selectAll(".legendElement")
 .enter()
 .append('circle')
 .attr('r', 10)
+.attr('cx', 150)
 .attr('cy', function(d, i) {
-  return i * 30
+  return i * 30 - 65
 })
 .attr('fill', function(d) {
   console.log(color(d))
   return color(d)
 })
-.append('text')
-.text(function(d) {
-  return d
-})
-.attr('x', 20)
-.attr('y', function(d, i) {
-  return i * 30
-})
-.style("font-size", "14px")
-.style("color", "white")
+
 
 const legendtext = svg.selectAll(".legendElement")
 .data(animals)
@@ -243,12 +225,27 @@ const legendtext = svg.selectAll(".legendElement")
 .text(function(d) {
   return d
 })
-.attr('x', 20)
+.attr('x', 170)
 .attr('y', function(d, i) {
-  return i * 30
+  return i * 30 - 60
 })
 .style("font-size", "14px")
 .style("color", "white")
+
+// Counter
+var i = parseInt($('#count').text());
+console.log(i)
+var tim;
+
+function run(){
+    tim = setInterval(function(){
+      i = i + 87
+        $('#count').html("<span id='killcount'>" + i + "</span>" + " animals were killed since you opened this page");
+    },50);
+}
+
+run();
+
 
 // A function that create / update the plot for a given variable:
 function update(data, country) {
@@ -282,6 +279,7 @@ svg
 // map to data
 var u = svg.selectAll("path")
   .data(data_ready)
+  .attr("id", "pie")
 
 // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
 u
@@ -309,16 +307,16 @@ pielabels
 .exit()
 .remove()
 
-  pielabels
-  .data(data_ready)
-  .enter()
-  .append('text')
-  .merge(pielabels)
-  .text(function(d){ return d.data.value.animal})
-  .attr("id","mySlices")
-  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
-  .style("text-anchor", "middle")
-  .style("font-size", 17)
+  // pielabels
+  // .data(data_ready)
+  // .enter()
+  // .append('text')
+  // .merge(pielabels)
+  // .text(function(d){ return d.data.value.animal})
+  // .attr("id","mySlices")
+  // .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+  // .style("text-anchor", "middle")
+  // .style("font-size", 17)
 
 // remove the group that is not present anymore
 u
@@ -335,60 +333,6 @@ var key = function(d){
 
 
 update(data3)
-
-
-
-    // const rectangles = svg.selectAll(".datapoint")
-    //  .data(alldata["1961"]["China"])
-    //  .enter()
-    //  .append("rect")
-    //  .attr("class", "datapoint")
-    //  .attr("fill", "red");
-    //
-    // // Set the x location of the rectangle
-    // rectangles.attr("x", function(d, i) {
-    //                                       return i * 50
-    //                                    })
-    //
-    // // Add hover effect on mouse over
-    // .on('mouseover',
-    // function (d, i) {
-    //                    d3.select(
-    //                    this).transition("barOpacity")
-    //                   .duration(50)
-    //                   .attr('opacity', '.8')
-    //
-    //                   // Makes div appear on hover
-    //                   div.transition("divAppear")
-    //                   .duration(50)
-    //                   .style("opacity", 1)
-    //                 })
-    //
-    // // Disable hover effect on mouse out
-    // .on('mouseout', function (d, i) {
-    //                                   d3.select(this).transition(
-    //                                                   "barDisappear")
-    //                                   .duration(50)
-    //                                   .attr('opacity', '1');
-    //
-    //                                   // Make the div disappear
-    //                                   div.transition("divDisappear")
-    //                                   .duration('50')
-    //                                   .style("opacity", 0);
-    //                                 })
-    //
-    // // Set rectangle width
-    // .attr("width", 30)
-    //
-    // // Set rectangle height
-    // .attr("height", function(d) {
-    //                               return 100;
-    //                            })
-    //
-    //          // Set the y location of the rectangle
-    //          .attr("y", function(d) {
-    //                                    return 50;
-    //                                 })
 
 
 
@@ -424,16 +368,15 @@ var animaldata = {'United States': {'total': 2000, 'piechart': [500, 500, 500, 5
 
 
 function enter(country) {
+
   var country = countryList.find(function(c) {
     return c.id === country.id
   })
-  console.log(country.name)
-
-
 
   // Which text to display on hover
 
   current.text(country && country.name + ' killed ' + totalList[yearSelect][country.name].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' animals in ' + yearSelect || '');
+  console.log(country && country.name + ' killed ' + totalList[yearSelect][country.name].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' animals in ' + yearSelect || '')
 }
 
 function leave(country) {
@@ -457,7 +400,7 @@ var v0 // Mouse position in Cartesian coordinates at start of drag gesture.
 var r0 // Projection rotation as Euler angles at start.
 var q0 // Projection rotation as versor at start.
 var lastTime = d3.now()
-var degPerMs = degPerSec / 5000 // !!! was / 1000
+var degPerMs = degPerSec / 1000 // !!! was / 1000
 var width, height
 var land, countries
 var countryList
@@ -622,6 +565,8 @@ console.log(country)
   update(alldata[slider.value], country)
 }
 
+update(alldata["1961"], ["Netherlands"])
+
 function getCountry(event) {
   var pos = projection.invert(d3.mouse(event))
   return countries.features.find(function(f) {
@@ -681,6 +626,14 @@ return countries.features.find(function(f) {
   })
 })
 }
+
+
+var counter_list = [10,10000,10000];
+  var str_counter_0 = counter_list[0];
+  var str_counter_1 = counter_list[1];
+  var str_counter_2 = counter_list[2];
+  var display_str = "";
+  var display_div = document.getElementById("display_div_id");
 
 
 });
