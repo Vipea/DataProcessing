@@ -11,6 +11,7 @@ let yearSelect = 1961
 totalList = {}
 let mintotal = 1000000
 let maxtotal = 1000000
+var countryinfo;
 // add live animal slaughter counters, also per country
 
 $.getJSON("data.json", function( data ) {
@@ -109,7 +110,9 @@ $.getJSON("data.json", function( data ) {
          .attr("y", 80)
          .attr("dy", ".25em")
          .text("Animals killed for meat")
-         .attr("fill","black");
+         .attr("fill","black")
+         .style("font-size", 20)
+         .style("font-family", "sans-serif")
 
        // make the bar gradient
        var gradient = legendSvg.append('defs')
@@ -248,13 +251,35 @@ run();
 
 
 // A function that create / update the plot for a given variable:
-function update(data, country) {
+function update(data, year, country, isfirst) {
   console.log(data)
+
+
+  let countryinfo = d3.select(".countryinfo")
+
+  countryinfo.remove()
+
+  d3.select("#globeinfo")
+  .append("text")
+  .text(country + " " + year)
+  .attr('x', 140)
+  .attr('y', 80)
+  .attr("class", "countryinfo")
+  .style("font-size", 20)
+  .style("font-family", "sans-serif")
+
+
+
+
+
+
 
 //Compute the position of each group on the pie:
 var pie = d3.pie()
-  .value(function(d) {return d.value.killed; })
-var data_ready = pie(d3.entries(data[country]))
+  .value(function(d) {
+    console.log(d)
+    return d.value.killed; })
+var data_ready = pie(d3.entries(data[year][country]))
 
 console.log(data_ready)
 
@@ -331,8 +356,6 @@ var key = function(d){
   console.log(d.data.labael)
   return d.data.label; };
 
-
-update(data3)
 
 
 
@@ -562,10 +585,10 @@ function mouseclick() {
 console.log(country)
   country = country.name
   console.log(country)
-  update(alldata[slider.value], country)
+  update(alldata, slider.value, country, true)
 }
 
-update(alldata["1961"], ["Netherlands"])
+update(alldata, "1961", "Netherlands", false)
 
 function getCountry(event) {
   var pos = projection.invert(d3.mouse(event))
