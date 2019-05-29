@@ -1,3 +1,4 @@
+
 //
 // Configuration
 //
@@ -7,15 +8,29 @@
 //    year ]
 alldata = {}
 let yearSelect = 1961
-
+totalList = {}
+let mintotal = 1000000
+let maxtotal = 1000000
 // add live animal slaughter counters, also per country
 
 $.getJSON("data.json", function( data ) {
   console.log(data[0])
   values = Object.values(data)
-  console.log(values)
   values.forEach(function(element) {
-    animalList = [{"animal": "Pigs", "killed":element.Pigs}, {"animal": "Cattle", "killed":element.Cattle}, {"animal": "Sheep", "killed":element.Sheep}, {"animal": "Turkeys", "killed":element.Turkeys}, {"animal": "Chickens", "killed":element.Chickens}, {"animal": "Goat", "killed":element.Goat}]
+    animalList = [{"animal": "Pigs", "killed":element.Pigs, "color":"#E74C3C"}, {"animal": "Cattle", "killed":element.Cattle, "color":"green"}, {"animal": "Sheep", "killed":element.Sheep, "color":"yellow"}, {"animal": "Turkeys", "killed":element.Turkeys, "color":"purple"}, {"animal": "Chickens", "killed":element.Chickens, "color":"blue"}, {"animal": "Goat", "killed":element.Goat, "color":"pink"}]
+    total = element.Pigs + element.Cattle + element.Sheep + element.Turkeys + element.Chickens + element.Goat
+    if (totalList[element.Year] == null) {
+      totalList[element.Year] = {}
+    }
+    else {
+    totalList[element.Year][element.Entity] = total
+  }
+    if (total < mintotal) {
+      mintotal = total
+    }
+    if (total > maxtotal) {
+      maxtotal = total
+    }
     animalList.forEach(function(item, index, object) {
       if (item.killed == null) {
         object.splice(index, 1)
@@ -31,37 +46,146 @@ $.getJSON("data.json", function( data ) {
       alldata[element.Year] = dict
     }
   })
-  console.log(alldata)
+
+  const start_year = 1961;
+  const end_year = 2014;
+  // Create slider to select years
+  d3.select("body")
+    .append("div")
+    .attr("class", "slidecontainer")
+    .append("input")
+    .attr("type", "range")
+    .attr("min", start_year)
+    .attr("max", end_year)
+    .attr("value", "50")
+    .attr("class", "slider")
+    .attr("id", "myRange");
+
+  // Show the value of the slider
+  d3.select("body")
+    .append("span")
+    .attr("id", "showVal");
+
+  // Show the value of the slider in the HTML page
+  let slider = document.getElementById("myRange");
+  let output = document.getElementById("showVal");
+  output.innerHTML = slider.value;
+
+  function changeYear(year) {
+
+    // Shows the year that is currently selected
+    output.innerHTML = slider.value;
+  };
+
+  // Changes the datapoint every time the slider is moved
+  slider.oninput = function() {
+    changeYear(this.value);
+    yearSelect = this.value
+  };
+
+  colorRange = ["#ffffb2", "#fed976", "#feb24c", "#fd8d3c", "#f03b20", "#bd0026"]
+   var myColor = d3.scaleLinear()
+   .domain([mintotal, maxtotal / 100000, maxtotal / 10000, maxtotal / 1000, maxtotal / 100, maxtotal / 10])
+  .range(colorRange);
 
 
-  // // Set margin and the inner width and height of the SVG
-  // const margin = {top: 30, right: 50, bottom: 30, left: 50};
-  // const innerWidth = w - margin.right - margin.left;
-  // const innerHeight = h - margin.top - margin.bottom;
+    var legendSvg = d3.select("body")
+      .append("svg")
+      .attr("width", 300)
+      .attr("height", 400);
 
+    legendWidth = 200
+    legendHeight = 300
+    legendMargin = 30
+       // make text for the legend
 
-  // Set y scale
-  let yScale = d3.scaleLinear()
-   .domain([0, 480190000])
-   .range([800,0]);
+       legendSvg.append("rect")
+       .attr("width", "100%")
+       .attr("height", "100%")
+       .attr("fill", "#686868");
 
+       legendSvg.append("text")
+         .attr("x", 0)
+         .attr("y", 80)
+         .attr("dy", ".25em")
+         .text("Animals Killed")
+         .attr("fill","white");
 
-  w = 500
-  h = 500
+       // make the bar gradient
+       var gradient = legendSvg.append('defs')
+         .append('linearGradient')
+         .attr('id', 'gradient')
+         .attr('x1', '0%')
+         .attr('y1', '100%')
+         .attr('x2', '0%')
+         .attr('y2', '0%')
+         .attr('spreadMethod', 'pad');
 
+         // create legendscale for yaxis
+            var legendScale = d3.scaleLinear()
+              .domain([0, maxtotal / 10])
+              .range([legendHeight, 0]);
 
-  console.log(alldata["1961"]["China"])
+          // create axis for the legend
+            var legendAxis = d3.axisRight()
+              .scale(legendScale)
+              .ticks(10)
+
+       // insert the legend axis
+       legendSvg.append("g")
+         .attr("class", "z axis")
+         .attr("transform", "translate(" + (legendWidth - legendMargin) + ", 100)")
+         .call(legendAxis);
+
+         function linspace(start, end, n) {
+  var out = [];
+  var delta = (end - start) / (n - 1);
+  var i = 0;
+  while (i < (n - 1)) {
+    out.push(start + (i * delta));
+    i++;
+  }
+  out.push(end);
+  return out;
+ }
+       // make the colorScaling grdient
+       var pct = linspace(0, 100, colorRange.length).map(function(d) {
+         return Math.round(d) + '%';
+       });
+
+       var colourPct = d3.zip(pct, colorRange);
+
+       colourPct.forEach(function(d) {
+         gradient.append('stop')
+           .attr('offset', d[0])
+           .attr('stop-color', d[1])
+           .attr('stop-opacity', 1);
+       });
+
+       // make the coloured rectangle
+       legendSvg.append('rect')
+         .attr('x', 0)
+         .attr('y', 100)
+         .attr('width', legendWidth - legendMargin)
+         .attr('height', legendHeight)
+         .style('fill', 'url(#gradient)');
+
 
 
   // set the dimensions and margins of the graph
-var width = 450
-  height = 450
+var width = $("#my_dataviz").width()
+console.log(width)
+  height = width
   margin = 40
 
 // The radius of the pieplot is half the width or half the height (smallest one). I substract a bit of margin.
 var radius = Math.min(width, height) / 2 - margin
 
 // append the svg object to the div called 'my_dataviz'
+// var dataviz = d3.select('body')
+// .append('div')
+// .attr('id', 'my_dataviz')
+
 var svg = d3.select("#my_dataviz")
 .append("svg")
   .attr("width", width)
@@ -69,119 +193,206 @@ var svg = d3.select("#my_dataviz")
 .append("g")
   .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+svg.append("g")
+	.attr("class", "slices");
+svg.append("g")
+	.attr("class", "labels");
+svg.append("g")
+	.attr("class", "lines");
 
-  // Create div to show bar value on mouse hover
-  const div = d3.select("body").append("div")
-    .attr("class", "tooltip-donut")
-    .style("opacity", 0);
+// create 2 data_set
+var data1 = {a: 9, b: 20, c:30, d:8, e:12}
+var data2 = {a: 6, b: 16, c:20, d:14, e:19, f:12}
+var data3 = alldata["1961"]["China"]
+
+animals = ["Pigs", "Cattle", "Sheep", "Turkeys", "Chicken", "Goat"]
+
+// set the color scale
+var color = d3.scaleOrdinal()
+.domain(animals)
+.range(d3.schemeSet2);
+console.log(color)
+
+const legend = svg.selectAll(".legendElement")
+.data(animals)
+.enter()
+.append('circle')
+.attr('r', 10)
+.attr('cy', function(d, i) {
+  return i * 30
+})
+.attr('fill', function(d) {
+  console.log(color(d))
+  return color(d)
+})
+.append('text')
+.text(function(d) {
+  return d
+})
+.attr('x', 20)
+.attr('y', function(d, i) {
+  return i * 30
+})
+.style("font-size", "14px")
+.style("color", "white")
+
+const legendtext = svg.selectAll(".legendElement")
+.data(animals)
+.enter()
+.append('text')
+.text(function(d) {
+  return d
+})
+.attr('x', 20)
+.attr('y', function(d, i) {
+  return i * 30
+})
+.style("font-size", "14px")
+.style("color", "white")
+
+// A function that create / update the plot for a given variable:
+function update(data, country) {
+  console.log(data)
+
+//Compute the position of each group on the pie:
+var pie = d3.pie()
+  .value(function(d) {return d.value.killed; })
+var data_ready = pie(d3.entries(data[country]))
+
+console.log(data_ready)
 
 
-    let rectangles = svg.selectAll(".datapoint")
-     .data(Object.values(alldata["1961"]["China"]))
-     .enter()
-     .append("rect")
-     .attr("class", "datapoint")
-     .attr("fill", "red");
+var arcGenerator = d3.arc()
+  .innerRadius(0)
+  .outerRadius(radius)
 
-    // Set the x location of the rectangle
-    rectangles.attr("x", function(d, i) {
-                                          return i * 50
-                                       })
-
-    // Add hover effect on mouse over
-    .on('mouseover',
-    function (d, i) {
-                       d3.select(
-                       this).transition("barOpacity")
-                      .duration(50)
-                      .attr('opacity', '.8')
-
-                      // Makes div appear on hover
-                      div.transition("divAppear")
-                      .duration(50)
-                      .style("opacity", 1)
-                    })
-
-    // Disable hover effect on mouse out
-    .on('mouseout', function (d, i) {
-                                      d3.select(this).transition(
-                                                      "barDisappear")
-                                      .duration(50)
-                                      .attr('opacity', '1');
-
-                                      // Make the div disappear
-                                      div.transition("divDisappear")
-                                      .duration('50')
-                                      .style("opacity", 0);
-                                    })
-
-    // Set rectangle width
-    .attr("width", 30)
-
-    // Set rectangle height
-    .attr("height", function(d) {
-      console.log(d.killed)
-                                  return yScale(d.killed);
-                               })
-
-             // Set the y location of the rectangle
-             .attr("y", function(d) {
-                                       return 0;
-                                    })
-// alldata jaar land
-function updateBars(year, country) {
-  var country = countryList.find(function(c) {
-    return c.id === country.id
-  })
-  country = country.name
-  console.log(year)
-  console.log(country)
-  console.log(alldata[year][country])
-
-  rectangles
-  .data(Object.values(alldata[year][country]))
+svg
+  .selectAll('mySlices')
+  .data(data_ready)
   .enter()
-  .attr("height", function(d) {
-    console.log(d.killed)
-                                return yScale(d.killed);
-                             })
+
+
+
+//
+// var polyline = svg.select(".lines")
+//               .selectAll("polyline")
+//               .data(pie(pie_data), key);
+//Initialize the plot with the first dataset
+
+// map to data
+var u = svg.selectAll("path")
+  .data(data_ready)
+
+// Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+u
+  .enter()
+  .append('path')
+  .merge(u)
+  .transition()
+  .duration(1000)
+  .attr('d', d3.arc()
+    .innerRadius(0)
+    .outerRadius(radius)
+  )
+  .attr('fill', function(d){
+    return(color(d.data.value.animal)) })
+  .attr("stroke", "white")
+  .style("stroke-width", "1px")
+  .style("opacity", 1)
+
+
+
+pielabels = svg
+.selectAll('#mySlices')
+
+pielabels
+.exit()
+.remove()
+
+  pielabels
+  .data(data_ready)
+  .enter()
+  .append('text')
+  .merge(pielabels)
+  .text(function(d){ return d.data.value.animal})
+  .attr("id","mySlices")
+  .attr("transform", function(d) { return "translate(" + arcGenerator.centroid(d) + ")";  })
+  .style("text-anchor", "middle")
+  .style("font-size", 17)
+
+// remove the group that is not present anymore
+u
+  .exit()
+  .remove()
+
 }
 
-const start_year = 1961;
-const end_year = 2014;
-// Create slider to select years
-d3.select("body")
-  .append("div")
-  .attr("class", "slidecontainer")
-  .append("input")
-  .attr("type", "range")
-  .attr("min", start_year)
-  .attr("max", end_year)
-  .attr("value", "50")
-  .attr("class", "slider")
-  .attr("id", "myRange");
+svg.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-// Show the value of the slider
-d3.select("body")
-  .append("span")
-  .attr("id", "showVal");
+var key = function(d){
+  console.log(d.data.labael)
+  return d.data.label; };
 
-// Show the value of the slider in the HTML page
-let slider = document.getElementById("myRange");
-let output = document.getElementById("showVal");
-output.innerHTML = slider.value;
 
-function changeYear(year) {
+update(data3)
 
-  // Shows the year that is currently selected
-  output.innerHTML = slider.value;
-};
 
-// Changes the datapoint every time the slider is moved
-slider.oninput = function() {
-  changeYear(this.value);
-  yearSelect = this.value
-};
+
+    // const rectangles = svg.selectAll(".datapoint")
+    //  .data(alldata["1961"]["China"])
+    //  .enter()
+    //  .append("rect")
+    //  .attr("class", "datapoint")
+    //  .attr("fill", "red");
+    //
+    // // Set the x location of the rectangle
+    // rectangles.attr("x", function(d, i) {
+    //                                       return i * 50
+    //                                    })
+    //
+    // // Add hover effect on mouse over
+    // .on('mouseover',
+    // function (d, i) {
+    //                    d3.select(
+    //                    this).transition("barOpacity")
+    //                   .duration(50)
+    //                   .attr('opacity', '.8')
+    //
+    //                   // Makes div appear on hover
+    //                   div.transition("divAppear")
+    //                   .duration(50)
+    //                   .style("opacity", 1)
+    //                 })
+    //
+    // // Disable hover effect on mouse out
+    // .on('mouseout', function (d, i) {
+    //                                   d3.select(this).transition(
+    //                                                   "barDisappear")
+    //                                   .duration(50)
+    //                                   .attr('opacity', '1');
+    //
+    //                                   // Make the div disappear
+    //                                   div.transition("divDisappear")
+    //                                   .duration('50')
+    //                                   .style("opacity", 0);
+    //                                 })
+    //
+    // // Set rectangle width
+    // .attr("width", 30)
+    //
+    // // Set rectangle height
+    // .attr("height", function(d) {
+    //                               return 100;
+    //                            })
+    //
+    //          // Set the y location of the rectangle
+    //          .attr("y", function(d) {
+    //                                    return 50;
+    //                                 })
+
+
+
+
 
 // ms to wait after dragging before auto-rotating
 var rotationDelay = 3000
@@ -195,7 +406,7 @@ var angles = { x: -20, y: 40, z: 0}
 var colorWater = '#fff'
 var colorLand = '#111'
 var colorGraticule = '#ccc'
-var colorCountry = '#a00'
+var colorCountry = 'yellow'
 // {
 //   'value':500,
 //   'animal':'chicken'
@@ -210,19 +421,19 @@ var animaldata = {'United States': {'total': 2000, 'piechart': [500, 500, 500, 5
 
 // maak objecten die bij elke hover de totale waarde weegeven, bij een onclick maak enter je steeds de subgroupen per land en laat je een bar chart zien
 
+
+
 function enter(country) {
   var country = countryList.find(function(c) {
     return c.id === country.id
   })
+  console.log(country.name)
+
+
 
   // Which text to display on hover
-  let totalKills = 0;
-  alldata[yearSelect][country.name].forEach(function(element) {
-    totalKills += element.killed;
-  });
 
-  current.text(country && country.name + ' killed ' + totalKills + ' animals in ' + yearSelect || '');
-  console.log(country);
+  current.text(country && country.name + ' killed ' + totalList[yearSelect][country.name].toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' animals in ' + yearSelect || '');
 }
 
 function leave(country) {
@@ -246,12 +457,14 @@ var v0 // Mouse position in Cartesian coordinates at start of drag gesture.
 var r0 // Projection rotation as Euler angles at start.
 var q0 // Projection rotation as versor at start.
 var lastTime = d3.now()
-var degPerMs = degPerSec / 1000
+var degPerMs = degPerSec / 5000 // !!! was / 1000
 var width, height
 var land, countries
 var countryList
 var autorotate, now, diff, roation
 var currentCountry
+
+
 
 //
 // Functions
@@ -266,8 +479,8 @@ function setAngles() {
 }
 
 function scale() {
-  width = document.documentElement.clientWidth
-  height = document.documentElement.clientHeight
+  width = $("#globediv").width()
+  height = $("#globediv").width()
   canvas.attr('width', width).attr('height', height)
   projection
     .scale((scaleFactor * Math.min(width, height)) / 2)
@@ -304,11 +517,25 @@ function dragended() {
 
 function render() {
   context.clearRect(0, 0, width, height)
-  fill(water, colorWater)
+  fill(water, "#3296CB")
   stroke(graticule, colorGraticule)
-  fill(land, colorLand)
+  //fill(land, colorLand) // hoe uithalen welk land dit is ???
+  //console.log(countries)
+  // console.log(countryList)
+  // console.log(countries)
+  //fill()
+//watis = toColor(land)
+countries.features.forEach(function(element) {
+  if (totalList[slider.value][element.country] == null) {
+    fill(element, "lightgrey")
+  }
+  else {
+    fill(element, myColor(totalList[slider.value][element.country]))
+  }
+})
   if (currentCountry) {
-    fill(currentCountry, colorCountry)
+    fill(currentCountry,
+      colorCountry)
   }
 }
 
@@ -384,8 +611,15 @@ function mousemove() {
 
 function mouseclick() {
   console.log("geklikt")
-  var c = getCountry(this)
-  updateBars(slider.value, c)
+  var country = getCountry(this)
+
+  var country = countryList.find(function(c) {
+  return c.id === country.id
+})
+console.log(country)
+  country = country.name
+  console.log(country)
+  update(alldata[slider.value], country)
 }
 
 function getCountry(event) {
@@ -420,11 +654,37 @@ loadData(function(world, cList) {
   countries = topojson.feature(world, world.objects.countries)
   countryList = cList
 
+  countries.features.forEach(function(element) {
+    countryList.forEach(function(country) {
+      if (element.id == country.id) {
+        element.country = country.name
+      }
+    })
+  })
+
+
+countries.features.forEach(function(element) {
+  console.log(element.country)
+})
+
   window.addEventListener('resize', scale)
   scale()
   autorotate = d3.timer(rotate)
 })
 
+function toColor(countryPosition) {
+return countries.features.find(function(f) {
+  return f.geometry.coordinates.find(function(c1) {
+    return polygonContains(c1, countryPosition) || c1.find(function(c2) {
+      return polygonContains(c2, countryPosition)
+    })
+  })
+})
+}
+
+
 });
+
+// for each country, fill
 
 // ??? missing country names
